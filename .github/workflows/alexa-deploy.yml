@@ -83,11 +83,11 @@ jobs:
           # Terraformの初期化
           terraform init -backend-config="region=${{ vars.AWS_DEFAULT_REGION }}" -backend-config="bucket=throwtrash-tfstate-${{ needs.set-stage.outputs.STAGE }}"
           # TFVARファイルを作成
-          echo "AppID=\"${{ secrets.APP_ID }}\"" >> terraform.tfvars
-          echo "ApiUrl=\"${{ secrets.MECAB_API_URL }}\"" >> terraform.tfvars
+          echo "AppID=\"${{ vars.ALEXA_APP_ID }}\"" >> terraform.tfvars
+          echo "ApiUrl=\"${{ vars.MECAB_API_URL }}\"" >> terraform.tfvars
           echo "ApiKey=\"${{ secrets.MECAB_API_KEY }}\"" >> terraform.tfvars
-          echo "ReminderProductID=\"${{ secrets.REMINDER_PRODUCT_ID }}\"" >> terraform.tfvars
-          echo "RunLevel=\"${{ vars.RUN_LEVEL }}\"" >> terraform.tfvars
+          echo "ReminderProductID=\"${{ vars.REMINDER_PRODUCT_ID }}\"" >> terraform.tfvars
+          echo "RunLevel=\"${{ vars.RUNLEVEL }}\"" >> terraform.tfvars
           echo "stage=\"${{ needs.set-stage.outputs.STAGE }}\"" >> terraform.tfvars
       - name: terraform-plan
         id: terraform-plan
