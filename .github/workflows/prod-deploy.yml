@@ -1,0 +1,114 @@
+name: Production Deploy
+on:
+  push:
+    branches:
+    - deploy
+    paths:
+      - "apps/throwtrash-web/**"
+      - "packages/trash-common/**"
+      - ".github/**"
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  get-pr-number:
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.findPr.outputs.pr }}
+    steps:
+      - uses: jwalton/gh-find-current-pr@master
+        id: findPr
+        with:
+          state: closed
+      - name: Set PR number
+        run: echo "pr_number=${{ steps.findPr.outputs.pr }}" >> $GITHUB_OUTPUT
+  frontend-deploy:
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: AWS Set up
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-frontend-deploy-role
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+      - uses: ./.github/actions/frontend/build
+        with:
+          frontend-stage: ${{ vars.FRONTEND_STAGE }}
+          api-base: ${{ vars.CF_DOMAIN_NAME }}/backend/${{ vars.BACKEND_STAGE }}
+      - uses: ./.github/actions/frontend/deploy
+        with:
+          frontend-stage: ${{ vars.FRONTEND_STAGE }}
+          bucket: throwtrash
+  backend-deploy:
+    needs: ["get-pr-number"]
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-role
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+      - name: Backend DB ChangeSet Execute
+        run: |
+          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-backend-db --region ${{ vars.AWS_DEFAULT_REGION }}
+      - name: Backend ChangeSet Execute
+        run: |
+          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-backend-${{ vars.BACKEND_STAGE }} --region ${{ vars.AWS_DEFAULT_REGION }}
+  mobile-backend-deploy:
+    needs: ["get-pr-number"]
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-role
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+      - name: Mobile Backend DB ChangeSet Execute
+        run: |
+          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-mobile-db --region ${{ vars.AWS_DEFAULT_REGION }}
+      - name: Mobile Backend ChangeSet Execute
+        run: |
+          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-mobile-${{ vars.MOBILE_API_STAGE }} --region ${{ vars.AWS_DEFAULT_REGION }}
+
+  cloudfront-deploy:
+    needs: ["frontend-deploy", "backend-deploy", "mobile-backend-deploy"]
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: AWS Set up
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-frontend-deploy-role
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+      - name: Install CDK dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Deploy CloudFront (primary)
+        env:
+          CF_STAGE: prod
+          CF_DOMAIN_NAME: ${{ vars.CF_DOMAIN_NAME }}
+          CF_CERT_ARN: ${{ vars.CF_CERT_ARN }}
+          CF_BACKEND_API_DOMAIN: ${{ vars.CF_BACKEND_API_DOMAIN}}
+          CF_MOBILE_API_DOMAIN: ${{ vars.CF_MOBILE_API_DOMAIN}}
+          CF_FRONTEND_BUCKET: throwtrash
+        run: |
+          pnpm --filter throwtrash-cloudfront run deploy -- --context stage=prod --require-approval never
+      - name: Invalidate CloudFront cache
+        env:
+          STACK_NAME: throwtrash-cloudfront-prod
+        run: |
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='DistributionId'].OutputValue" --output text --region us-east-1)
+          aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "/*" --region us-east-1

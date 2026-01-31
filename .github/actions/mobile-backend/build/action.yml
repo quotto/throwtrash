@@ -1,0 +1,36 @@
+name: 'Mobile Backend Build'
+description: 'Build the Mobile backend'
+runs:
+  using: composite
+  steps:
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9.12.0
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'pnpm'
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+    - name: Build
+      shell: bash
+      run: pnpm --filter api run build
+    - name: Archive Module
+      uses: actions/upload-artifact@v4
+      with:
+        name: mobile-backend
+        path: apps/throwtrash-web/api/src/api-dist
+        retention-days: 1
+    - name: Archive Layer
+      uses: actions/upload-artifact@v4
+      with:
+        name: mobile-backend-layer
+        path: apps/throwtrash-web/api/src/node_modules
+    - name: Move dependencies to layer directory
+      shell: bash
+      run: |
+        mkdir -p apps/throwtrash-web/api/src/layer/nodejs
+        mv apps/throwtrash-web/api/src/node_modules apps/throwtrash-web/api/src/layer/nodejs/node_modules

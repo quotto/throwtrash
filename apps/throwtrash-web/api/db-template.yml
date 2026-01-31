@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: The AWS CloudFormation template for BSE Workflow
+Parameters:
+  ActivationTableName:
+    Type: String
+    Default: throwtrash-activation
+  AccountLinkTableName:
+    Type: String
+    Default: throwtrash-accountlink
+Resources:
+  ActivationTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "code"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "code"
+          KeyType: HASH
+      TableName: !Ref ActivationTableName
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        -
+          Key: group
+          Value: mobile
+        -
+          Key: app
+          Value: throwtrash
+    DeletionPolicy: Retain
+  AccountLinkTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "token"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "token"
+          KeyType: HASH
+      TableName: !Ref AccountLinkTableName
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        -
+          Key: group
+          Value: mobile
+        -
+          Key: app
+          Value: throwtrash
+    DeletionPolicy: Retain
+Outputs:
+  ActivationTable:
+    Export:
+      Name: "throwtrash-db-activation"
+    Value: !GetAtt ActivationTable.Arn
+  AccountLinkTable:
+    Export:
+      Name: "throwtrash-db-accountlink"
+    Value: !GetAtt AccountLinkTable.Arn

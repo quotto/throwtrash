@@ -1,0 +1,14 @@
+
+version: "3"
+services:
+    web-development:
+        build: .
+        volumes:
+            - ../:/app:cached
+            - /app/api/src/node_modules
+            - /app/backend/src/node_modules
+            - /app/frontend/node_modules
+        command: /bin/sh -c "while sleep 1000; do :; done"
+        ports: 
+            - 9005:9005 # firebase port for account link
+            - 5500:5500 # Live Server(VS Code Extention) port

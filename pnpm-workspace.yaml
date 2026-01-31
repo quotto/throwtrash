@@ -1,0 +1,5 @@
+packages:
+  - 'apps/**'
+  - 'packages/*'
+  - '!**/cdk.out/**'
+  - '!**/node_modules/**'

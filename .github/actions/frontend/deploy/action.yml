@@ -1,0 +1,16 @@
+name: "Frontend Deploy"
+description: "Deploy the frontend"
+inputs:
+  frontend-stage:
+    description: "The frontend stage"
+    required: true
+  bucket:
+    description: "The name of the S3 bucket"
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: S3 Sync
+      shell: bash
+      run: |
+        aws s3 sync apps/throwtrash-web/frontend/out s3://${{ inputs.bucket }}/${{ inputs.frontend-stage }}

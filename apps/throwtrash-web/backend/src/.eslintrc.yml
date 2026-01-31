@@ -1,0 +1,28 @@
+env:
+  commonjs: true
+  es6: true
+  node: true
+  jest: true
+extends:
+  - "eslint:recommended"
+  - "plugin:@typescript-eslint/recommended"
+parser: "@typescript-eslint/parser"
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+parserOptions:
+  ecmaVersion: 2022
+  sourceType: module
+  project: "./tsconfig.json"
+ignorePatterns:
+  - "backend-dist/**"
+rules:
+  no-unused-vars:
+    - 2
+    - argsIgnorePattern: "^_"
+  "@typescript-eslint/no-unused-vars":
+    - 2
+    - argsIgnorePattern: "^_"
+  "@typescript-eslint/no-explicit-any": "off"
+  "@typescript-eslint/ban-types": "off"
+  "prefer-const": "off"

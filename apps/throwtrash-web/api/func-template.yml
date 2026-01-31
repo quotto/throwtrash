@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: The AWS CloudFormation template for BSE Workflow
+Parameters:
+  RunLevel:
+    Type: "String"
+    Default: "DEBUG"
+  Stage:
+    Type: "String"
+    Default: "dev"
+  SkillStage:
+    Type: "String"
+    Default: "development"
+  AlexaSkillID:
+    Type: "String"
+  AlexaClientID:
+    Type: "String"
+  AlexaClientSecret:
+    Type: "String"
+  AlexaUserClientID:
+    Type: "String"
+  BackendApiKey:
+    Type: "String"
+  FrontendUrl:
+    Type: "String"
+  AuthorizationEndpoint:
+    Type: "String"
+Resources:
+  LambdaExecPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action: "dynamodb:*"
+            Resource:
+              - Fn::ImportValue: throwtrash-db-schedule
+              - Fn::ImportValue: throwtrash-db-activation
+              - Fn::ImportValue: throwtrash-db-accountlink
+              - Fn::ImportValue: throwtrash-db-shared-schedule
+      PolicyName: !Sub "throwtrash-mobile-policy-${Stage}"
+      Roles:
+        - !Ref LambdaExecRole
+    DeletionPolicy: Retain
+  LambdaExecRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      RoleName: !Sub "throwtrash-mobile-lambda-role-${Stage}"
+    DeletionPolicy: Retain
+  FunctionLayer:
+    Type: "AWS::Serverless::LayerVersion"
+    Properties:
+      ContentUri: ./src/layer
+      LayerName: !Sub "throwtrash-mobile-layer-${Stage}"
+      CompatibleRuntimes:
+        - nodejs22.x
+  LambdaFunction:
+    Type: "AWS::Serverless::Function"
+    DeletionPolicy: Retain
+    Properties:
+      CodeUri: ./src/api-dist
+      FunctionName: !Sub "throwtrash-mobile-${Stage}"
+      Handler: index.handler
+      Role: !GetAtt LambdaExecRole.Arn
+      Runtime: nodejs22.x
+      Timeout: 30
+      Layers:
+        - !Ref FunctionLayer
+      Environment:
+        Variables:
+          RUNLEVEL: !Ref RunLevel
+          SKILL_STAGE: !Ref SkillStage
+          ALEXA_SKILL_ID: !Ref AlexaSkillID
+          ALEXA_CLIENT_ID: !Ref AlexaClientID
+          ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
+          ALEXA_USER_CLIENT_ID: !Ref AlexaUserClientID
+          BACKEND_API_KEY: !Ref BackendApiKey
+          FRONTEND_URL: !Ref FrontendUrl
+          AUTHORIZATION_ENDPOINT: !Ref AuthorizationEndpoint
+      Tags:
+        group: mobile
+        app: throwtrash
+      Events:
+        Sync:
+          Type: Api
+          Properties:
+            Path: "/sync"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.id:
+                  Required: true
+        PublishCode:
+          Type: Api
+          Properties:
+            Path: "/publish_activation_code"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.id:
+                  Required: true
+        StartLink:
+          Type: Api
+          Properties:
+            Path: "/start_link"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.user_id:
+                  Required: true
+              - method.request.querystring.platform:
+                  Required: true
+        EnableSkill:
+          Type: Api
+          Properties:
+            Path: "/enable_skill"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.token:
+                  Required: true
+              - method.request.querystring.state:
+                  Required: true
+              - method.request.querystring.code:
+                  Required: true
+              - method.request.querystring.scope:
+                  Required: true
+              - method.request.querystring.redirect_uri:
+                  Required: true
+        MigrationV2:
+          Type: Api
+          Properties:
+            Path: "/migration/v2"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.user_id:
+                  Required: true
+        Register:
+          Type: Api
+          Properties:
+            Path: "/register"
+            Method: "POST"
+            RestApiId: !Ref Api
+        Update:
+          Type: Api
+          Properties:
+            Path: "/update"
+            Method: "POST"
+            RestApiId: !Ref Api
+        Activate:
+          Type: Api
+          Properties:
+            Path: "/activate"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.code:
+                  Required: true
+  Api:
+    Type: "AWS::Serverless::Api"
+    DeletionPolicy: Retain
+    Properties:
+      Name: !Sub "throwtrash-mobile-api-${Stage}"
+      Tags:
+        group: mobile
+        app: throwtrash
+      StageName: !Ref Stage
+Outputs:
+  MobileApiDomain:
+    Value: !Sub "${Api}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: !Sub "throwtrash-mobile-api-domain-${Stage}"
+  MobileApiStage:
+    Value: !Ref Stage
+    Export:
+      Name: !Sub "throwtrash-mobile-api-stage-${Stage}"

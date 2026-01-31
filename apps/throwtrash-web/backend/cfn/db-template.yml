@@ -1,0 +1,213 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: The AWS CloudFormation template for BSE Workflow
+Parameters:
+  SessionTableName:
+    Type: "String"
+    Default: "throwtrash-backend-session"
+  AuthorizationTableName:
+    Type: "String"
+    Default: "throwtrash-backend-authorization"
+  AccessTokenTableName:
+    Type: "String"
+    Default: "throwtrash-backend-accesstoken"
+  RefreshTokenTableName:
+    Type: "String"
+    Default: "throwtrash-backend-refreshtoken"
+  TrashScheduleTableName:
+    Type: "String"
+    Default: "TrashSchedule"
+  SharedScheduleTableName:
+    Type: "String"
+    Default: "throwtrash-shared-schedule"
+  SigninIdIndexName:
+    Type: "String"
+    Default: "signinId-index"
+Resources:
+  TrashScheduleTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      BillingMode: "PAY_PER_REQUEST"
+      Tags:
+        -
+          Key: group
+          Value: backend
+        -
+          Key: app
+          Value: throwtrash
+      AttributeDefinitions:
+        -
+          AttributeName: "id"
+          AttributeType: "S"
+        -
+          AttributeName: "signinId"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "id"
+          KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        -
+          IndexName: !Ref SigninIdIndexName
+          KeySchema:
+            -
+              AttributeName: "signinId"
+              KeyType: "HASH"
+          Projection:
+            NonKeyAttributes:
+              - "description"
+              - "id"
+              - "signinService"
+            ProjectionType: "INCLUDE"
+      StreamSpecification:
+        StreamViewType: "NEW_IMAGE"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      TableName: !Ref TrashScheduleTableName
+    DeletionPolicy: Retain
+  SessionTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "id"
+          KeyType: HASH
+      TableName: !Ref SessionTableName
+      TimeToLiveSpecification:
+        AttributeName: expire
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        -
+          Key: group
+          Value: backend
+        -
+          Key: app
+          Value: throwtrash
+    DeletionPolicy: Retain
+  AuthorizationTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "code"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "code"
+          KeyType: HASH
+      TableName: !Ref AuthorizationTableName
+      TimeToLiveSpecification:
+        AttributeName: expires_in
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        -
+          Key: group
+          Value: backend
+        -
+          Key: app
+          Value: throwtrash
+    DeletionPolicy: Retain
+  AccessTokenTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "access_token"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "access_token"
+          KeyType: HASH
+      TableName: !Ref AccessTokenTableName
+      TimeToLiveSpecification:
+        AttributeName: expires_in
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        -
+          Key: group
+          Value: backend
+        -
+          Key: app
+          Value: throwtrash
+    DeletionPolicy: Retain
+  RefreshTokenTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "refresh_token"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "refresh_token"
+          KeyType: HASH
+      TableName: !Ref RefreshTokenTableName
+      TimeToLiveSpecification:
+        AttributeName: expires_in
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        -
+          Key: group
+          Value: backend
+        -
+          Key: app
+          Value: throwtrash
+    DeletionPolicy: Retain
+  SharedScheduleTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "shared_id"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "shared_id"
+          KeyType: HASH
+      TableName: !Ref SharedScheduleTableName
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        -
+          Key: group
+          Value: backend
+        -
+          Key: app
+          Value: throwtrash
+    DeletionPolicy: Retain
+Outputs:
+  AuthorizationTable:
+    Export:
+      Name: !Sub "throwtrash-db-authorization"
+    Value: !GetAtt AuthorizationTable.Arn
+  AccessTokenTable:
+    Export:
+      Name: !Sub "throwtrash-db-accesstoken"
+    Value: !GetAtt AccessTokenTable.Arn
+  RefreshTokenTable:
+    Export:
+      Name: !Sub "throwtrash-db-refreshtoken"
+    Value: !GetAtt RefreshTokenTable.Arn
+  SessionTable:
+    Export:
+      Name: !Sub "throwtrash-db-session"
+    Value: !GetAtt SessionTable.Arn
+  TrashScheduleTable:
+    Export:
+      Name: !Sub "throwtrash-db-schedule"
+    Value: !GetAtt TrashScheduleTable.Arn
+  SigninIdIndex:
+    Export:
+      Name: !Sub "throwtrash-db-schedule-signinIndex"
+    Value: !Sub "${TrashScheduleTable.Arn}/index/${SigninIdIndexName}"
+  SharedSchedule:
+    Export:
+      Name: !Sub "throwtrash-db-shared-schedule"
+    Value: !GetAtt SharedScheduleTable.Arn

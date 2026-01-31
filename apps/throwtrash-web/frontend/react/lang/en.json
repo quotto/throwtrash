@@ -1,0 +1,166 @@
+{
+    "translation": {
+        "IntroJS": {
+            "main": {
+                "title": "Input Trash Schedule",
+                "hint": "Max 3 types per a trash and max 10 trashes"
+            },
+            "login": {
+                "title": "Login",
+                "hint": "Use Amazon or Googl Account and easily edit registered trashes"
+            },
+            "nextday": {
+                "title": "Tomorrow's Trashes",
+                "hint": "Tell you tomorrow's trashes, If Alexa skill is called by regular action in between 12 and 24 o'clock."
+            },
+            "other": {
+                "title": "QA",
+                "hint": "Please check how to use and any question."
+            },
+            "label": {
+                "done": "Done"
+            }
+        },
+        "error": {
+            "missingvalue": "empty value",
+            "wrongnumber": "only numbers",
+            "wrongminnumber": "1 or more numbers",
+            "wrongmaxnumber": "31 or under munbers",
+            "wronglengthstring": "with in %s characters",
+            "wrongcharacter": "only alphabetic or numeric characters",
+            "missingschedule": "need one or more schedules"
+        },
+        "App": {
+            "title": "Trash Schedule",
+            "description":{
+                "trash": "You can register up to 10 type of trash.",
+                "schedule": "You can register up to 3 schedules on one trash."
+            },
+            "checkbox": {
+                "nextday": "Notify tomorrow trashes in afternoon or later",
+                "description": "If you check this, skill will tell you tomorrow trashes when you call skill via regular action on between 12 and 24 o'cklock."
+            }
+        },
+        "BarMenu": {
+            "usage": "Usage",
+            "policy": "Policy",
+            "contact": "Contact",
+            "logout": "Sign Out",
+            "loginas": "Signed in as %s."
+        },
+        "NotificationDialog": {
+            "title": "Notification",
+            "message": "Smartphone App for \"MyTrash \" is so useful!!",
+            "sub1": "Connect to Alexa on one tap",
+            "sub2": "Update schedule so easy",
+            "sub3": "Share schedule with your family",
+            "close": "Dismiss"
+        },
+        "SigninDialog": {
+            "login": "Sign In",
+            "aboutlogin": "You can modify schedule easirly by signing in with your Amazon or Google Account.",
+            "close": "Close"
+        },
+        "TopAppBar": {
+            "title": "My Trash"
+        },
+        "ErrorDialog": {
+            "message": "Sorry,please contact to %s about error. We will research and reply to you.",
+            "formname": "Contact Form",
+            "close": "Close"
+        },
+        "ScheduleList":{
+            "error":{
+                "registrationfailed":{
+                    "text":"Registration Failed.",
+                    "title":"Notice"
+                }
+            },
+            "button":{
+                "addtrash":"Add Trash",
+                "regist": "Register"
+            }
+        },
+        "TrashSchedule":{
+            "button":{
+                "delete": "Delete",
+                "exclude": "ExcludeDate",
+                "globalExclude": "Exclude Dates (All Trashes)",
+                "add": "Add Schedule"
+            },
+            "globalExcludes": {
+                "label": "Global exclude dates",
+                "empty": "No global exclude date is configured.",
+                "item": "{{month}}/{{date}}"
+            },
+            "input":{
+                "other":{
+                    "label": "Input any trash",
+                    "placeholder": "enter any trash name",
+                    "maxlength": 20
+                },
+                "month": {
+                    "label": "Date",
+                    "placeholder": "Numbers of 1 to 31",
+                    "suffix": ""
+                }
+            },
+            "select":{
+                "trashtype":{
+                    "option": {
+                        "burn" : "Burnable Trash",
+                        "unburn": "Unburnable Trash",
+                        "plastic": "Plastic",
+                        "bin": "Bottole",
+                        "can": "Can",
+                        "petbottle": "Plastic Bottole",
+                        "paper": "Paper",
+                        "resource": "Recycble Trash",
+                        "coarse": "Oversized Trash",
+                        "other": "Others(free text)"
+                    },
+                    "label": "Trash"
+                },
+                "scheduletype":{
+                    "option": {
+                        "none": "",
+                        "weekday": "EveryWeek",
+                        "biweek": "nth Week ",
+                        "month": "EveryMonth",
+                        "evweek": "EveryOtherWeek"
+                    },
+                    "label": "Schedule"
+                },
+                "weekday": {
+                    "option": {
+                        "0": "Sunday",
+                        "1": "Monday",
+                        "2": "Tuseday",
+                        "3": "Wednesday",
+                        "4": "Thursday",
+                        "5": "Friday",
+                        "6": "Saturday"
+                    },
+                    "number":{
+                        "1":"1st ","2":"2nd ","3":"3rd ","4":"4th ","5":"5th "
+                    },
+                    "label": "Day of the week"
+                },
+                "evweek": {
+                    "helper": "Recently date",
+                    "interval": "Interval"
+                }
+            },
+            "style": {
+                "StyleToggleButton": {
+                    "fontsize": "50%"
+                }
+            }
+        },
+        "ExcludePage": {
+            "global": {
+                "title": "Exclude Dates for All Trashes (Max 10)"
+            }
+        }
+    }
+}

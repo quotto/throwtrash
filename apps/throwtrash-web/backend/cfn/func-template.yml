@@ -1,0 +1,207 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: The AWS CloudFormation template for BSE Workflow
+Parameters:
+  RunLevel:
+    Type: "String"
+    Default: "DEBUG"
+  GoogleClientID:
+    Type: "String"
+  GoogleClientSecret:
+    Type: "String"
+  Stage:
+    Type: "String"
+  AlexaClientID:
+    Type: "String"
+  AlexaClientSecret:
+    Type: "String"
+  AlexaUserClientID:
+    Type: "String"
+  AlexaUserSecret:
+    Type: "String"
+  GoogleUserClientID:
+    Type: "String"
+  GoogleUserSecret:
+    Type: "String"
+  AlexaSkillID:
+    Type: "String"
+  FrontendUrl:
+    Type: "String"
+  AuthorizationEndpoint:
+    Type: "String"
+Resources:
+  LambdaExecPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action: "dynamodb:*"
+            Resource:
+              - Fn::ImportValue: throwtrash-db-schedule
+              - Fn::ImportValue: throwtrash-db-schedule-signinIndex
+              - Fn::ImportValue: throwtrash-db-accesstoken
+              - Fn::ImportValue: throwtrash-db-refreshtoken
+              - Fn::ImportValue: throwtrash-db-authorization
+              - Fn::ImportValue: throwtrash-db-session
+              - Fn::ImportValue: throwtrash-db-shared-schedule
+      PolicyName: !Sub "throwtrash-backend-lambda-policy-${Stage}"
+      Roles:
+        - !Ref LambdaExecRole
+    DeletionPolicy: Retain
+  LambdaExecRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      RoleName: !Sub "throwtrash-backend-lambda-exec-role-${Stage}"
+    DeletionPolicy: Retain
+  FunctionLayer:
+    Type: "AWS::Serverless::LayerVersion"
+    Properties:
+      ContentUri: ../src/layer
+      LayerName: !Sub "throwtrash-backend-layer-${Stage}"
+      CompatibleRuntimes:
+        - nodejs16.x
+  LambdaFunction:
+    Type: "AWS::Serverless::Function"
+    DeletionPolicy: Retain
+    Properties:
+      CodeUri: ../src/backend-dist
+      FunctionName: !Sub "throwtrash-backend-${Stage}"
+      Handler: index.handler
+      Role: !GetAtt  LambdaExecRole.Arn
+      Runtime: nodejs22.x
+      Timeout: 30
+      Layers:
+        - !Ref FunctionLayer
+      Environment:
+        Variables:
+          RUNLEVEL: !Ref RunLevel
+          GOOGLE_CLIENT_ID: !Ref GoogleClientID
+          GOOGLE_CLIENT_SECRET: !Ref GoogleClientSecret
+          GOOGLE_APPLICATION_CREDENTIALS: "/var/task/serviceAccountKey.json"
+          ALEXA_CLIENT_ID: !Ref AlexaClientID
+          ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
+          ALEXA_USER_CLIENT_ID: !Ref AlexaUserClientID
+          ALEXA_USER_SECRET: !Ref AlexaUserSecret
+          GOOGLE_USER_CLIENT_ID: !Ref GoogleUserClientID
+          GOOGLE_USER_SECRET: !Ref GoogleUserSecret
+          ALEXA_SKILL_ID: !Ref AlexaSkillID
+          FRONTEND_URL: !Ref FrontendUrl
+          AUTHORIZATION_ENDPOINT: !Ref AuthorizationEndpoint
+      Tags:
+        app: throwtrash
+        group: backend
+      Events:
+        OAuthRequest:
+          Type: Api
+          Properties:
+            Path: "/oauth_request"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.state:
+                  Required: true
+              - method.request.querystring.client_id:
+                  Required: true
+              - method.request.querystring.redirect_uri:
+                  Required: true
+              - method.request.querystring.platform:
+                  Required: true
+        OAuthSignin:
+          Type: Api
+          Properties:
+            Path: "/google_signin"
+            Method: "GET"
+            RestApiId: !Ref Api
+        SignIn:
+          Type: Api
+          Properties:
+            Path: "/signin"
+            Method: "GET"
+            RestApiId: !Ref Api
+            RequestParameters:
+              - method.request.querystring.service:
+                  Required: true
+              - 'method.request.querystring.access_token'
+              - 'method.request.querystring.code'
+              - 'method.request.querystring.state'
+        SignOut:
+          Type: Api
+          Properties:
+            Path: "/signout"
+            Method: "GET"
+            RestApiId: !Ref Api
+        UserInfo:
+          Type: Api
+          Properties:
+            Path: "/user_info"
+            Method: "GET"
+            RestApiId: !Ref Api
+        Regist:
+          Type: Api
+          Properties:
+            Path: "/regist"
+            Method: "POST"
+            RestApiId: !Ref Api
+        RequestAccessToken:
+          Type: Api
+          Properties:
+            Path: "/request_accesstoken"
+            Method: "POST"
+            RestApiId: !Ref Api
+        RequestAuthrozationCode:
+          Type: Api
+          Properties:
+            Path: "/request_authorization_code"
+            Method: "GET"
+            RestApiId: !Ref Api
+            Auth:
+              ApiKeyRequired: true
+            RequestParameters:
+              - method.request.querystring.user_id:
+                  Required: true
+              - method.request.querystring.client_id:
+                  Required: true
+              - method.request.querystring.redirect_uri:
+                  Required: true
+  Api:
+    Type: "AWS::Serverless::Api"
+    DeletionPolicy: Retain
+    Properties:
+      Name: !Sub "throwtrash-backend-${Stage}"
+      Tags:
+        app: throwtrash
+        group: backend
+      StageName: !Ref Stage
+      MethodSettings:
+        -
+          LoggingLevel: "INFO"
+          HttpMethod: "*"
+          ResourcePath: "/*"
+          DataTraceEnabled: true
+  LambdaVersion:
+    Type: "AWS::Lambda::Version"
+    Properties:
+      FunctionName: !GetAtt LambdaFunction.Arn
+Outputs:
+  BackendApiDomain:
+    Value: !Sub "${Api}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: !Sub "throwtrash-backend-api-domain-${Stage}"
+  BackendApiStage:
+    Value: !Ref Stage
+    Export:
+      Name: !Sub "throwtrash-backend-api-stage-${Stage}"

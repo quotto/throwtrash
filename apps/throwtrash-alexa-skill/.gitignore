@@ -1,0 +1,10 @@
+*/node_modules
+deploy/package-template.yml
+app/src/test/model.json
+app/dist
+app/libs
+app/**/*.zip
+node_modules
+.terraform
+terraform.tfvars
+work/*

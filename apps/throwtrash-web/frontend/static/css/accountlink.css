@@ -1,0 +1,20 @@
+#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: auto auto;
+}
+
+#icon > img {
+    width: 300px;
+}
+
+.frase { 
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 150%;
+    font-style: oblique;
+}
+
+#message {
+    color: green;
+}

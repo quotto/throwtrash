@@ -1,0 +1,31 @@
+name: "Frontend Build"
+description: "Build the frontend"
+inputs:
+  frontend-stage:
+    description: "The frontend stage"
+    required: true
+  api-base:
+    description: "The API base for frontend (CloudFront path base)"
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9.12.0
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'pnpm'
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+    - name: Build frontend
+      shell: bash
+      run: pnpm --filter trashschedule-next build
+      env:
+        FRONTEND_STAGE: ${{ inputs.frontend-stage }}
+        NEXT_PUBLIC_API_BASE: ${{ inputs.api-base }}

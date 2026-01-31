@@ -1,0 +1,172 @@
+{
+    "translation": {
+        "IntroJS": {
+            "main": {
+                "title": "ゴミ出し予定の入力",
+                "hint": "1つのごみにつき3日分、最大10種類のゴミ出し予定を入力できます"
+            },
+            "login": {
+                "title": "ログイン",
+                "hint": "AmazonまたはGoogleアカウントでログインすることで、登録したゴミ出し予定を簡単に修正できます。"
+            },
+            "nextday": {
+                "title": "明日のゴミ出しのお知らせ",
+                "hint": "Alexaスキルの定型アクション利用時、12時から24時の間は明日のゴミをお知らせします。"
+            },
+            "other": {
+                "title": "その他",
+                "hint": "その他使い方やお問い合わせはこちらのメニューからお願いします。"
+            },
+            "label": {
+                "done": "終了"
+            }
+        },
+        "error": {
+            "missingvalue": "値を入力してください",
+            "wrongnumber": "数字を入力してください",
+            "wrongminnumber": "1以上の数字を入力してください",
+            "wrongmaxnumber": "31以下の数字を入力してください",
+            "wronglengthstring": "%s文字以内で入力してください",
+            "wrongcharacter": "英字、ひらがな、カタカナ、漢字、数字で入力してください",
+            "missingschedule": "一つ以上のスケジュールを設定してください"
+        },
+        "App": {
+            "title": "今日のゴミ出し",
+            "description":{
+                "trash": "最大10種類のゴミ出し予定を登録できます。",
+                "schedule": "1種類のゴミに3つまでスケジュールを登録することができます。"
+            },
+            "checkbox": {
+                "nextday": "午後は明日のゴミを知らせる",
+                "description": "Alexaスキルの定型アクションで12時～24時の間に起動すると、明日のゴミをお知らせするようになります。"
+            }
+        },
+        "BarMenu": {
+            "usage": "使い方",
+            "policy": "プライバシーポリシー",
+            "contact": "お問い合わせ",
+            "logout": "ログアウト",
+            "loginas": "%s さんとしてログインしています"
+        },
+        "NotificationDialog": {
+            "title": "お知らせ",
+            "message": "『今日のゴミ出し』はスマホアプリでさらに便利に！",
+            "sub1": "ワンタップでAlexaと連携",
+            "sub2": "登録情報の変更も簡単",
+            "sub3": "家族ともスケジュールが共有できる",
+            "close": "閉じる"
+        },
+        "SigninDialog": {
+            "login": "ログイン",
+            "aboutlogin": "お持ちのAmazonまたはGoogleアカウントでログインすることで登録したスケジュールを簡単に修正することができます。",
+            "close": "閉じる"
+        },
+        "TopAppBar": {
+            "title": "今日のゴミ出し"
+        },
+        "ErrorDialog": {
+            "message": "お手数ですが%sよりエラーの発生状況をご連絡願います。開発者にて確認次第対応いたします。",
+            "formname": "お問い合わせフォーム",
+            "close": "閉じる"
+        },
+        "ScheduleList":{
+            "error":{
+                "registrationfailed":{
+                    "text":"登録に失敗しました。",
+                    "title":"お知らせ"
+                }
+            },
+            "button":{
+                "addtrash":"ゴミの種類を追加",
+                "regist": "登録"
+            }
+        },
+        "TrashSchedule":{
+            "button":{
+                "delete": "削除",
+                "exclude": "例外日を設定",
+                "globalExclude": "全体の例外日を設定",
+                "add": "スケジュールを追加"
+            },
+            "globalExcludes": {
+                "label": "全体の例外日",
+                "empty": "全体の例外日は設定されていません。",
+                "item": "{{month}}月{{date}}日"
+            },
+            "input":{
+                "other":{
+                    "label": "任意のゴミを入力",
+                    "placeholder": "任意のゴミを入力",
+                    "maxlength": 10
+                },
+                "month": {
+                    "label": "日にち",
+                    "placeholder": "1～31の数字を入力",
+                    "suffix": "日"
+                }
+            },
+            "select":{
+                "trashtype":{
+                    "option": {
+                        "burn" : "もえるゴミ",
+                        "unburn": "もえないゴミ",
+                        "plastic": "プラスチック",
+                        "bottole": "ビン・カン",
+                        "bin": "ビン",
+                        "can": "カン",
+                        "petbottle": "ペットボトル",
+                        "paper": "古紙",
+                        "resource": "資源ごみ",
+                        "coarse": "粗大ごみ",
+                        "other": "その他（自分で入力）"
+                    },
+                    "label": "ゴミの種類"
+                },
+                "scheduletype":{
+                    "option": {
+                        "none": "",
+                        "weekday": "毎週",
+                        "biweek": "第○ ×曜日",
+                        "month": "毎月",
+                        "evweek": "隔週"
+                    },
+                    "label": "スケジュール"
+                },
+                "weekday": {
+                    "option": {
+                        "0": "日曜日",
+                        "1": "月曜日",
+                        "2": "火曜日",
+                        "3": "水曜日",
+                        "4": "木曜日",
+                        "5": "金曜日",
+                        "6": "土曜日"
+                    },
+                    "number":{
+                        "1":"第1","2":"第2","3":"第3","4":"第4","5":"第5"
+                    },
+                    "label": "曜日"
+                },
+                "evweek": {
+                    "helper": "直近の収集日",
+                    "interval": "間隔",
+                    "intervalValue": {
+                        "0":"2週間に1回",
+                        "1":"3週間に1回",
+                        "2":"4週間に1回"
+                    }
+                }
+            },
+            "style": {
+                "StyleToggleButton": {
+                    "fontsize": "100%"
+                }
+            }
+        },
+        "ExcludePage": {
+            "global": {
+                "title": "全体の例外日設定（最大10件）"
+            }
+        }
+    }
+}
