@@ -188,7 +188,7 @@ jobs:
           CF_MOBILE_API_DOMAIN: ${{ vars.CF_MOBILE_API_DOMAIN }}
           CF_FRONTEND_BUCKET: throwtrash-dev
         run: |
-          pnpm --filter throwtrash-cloudfront run deploy -- --context stage=dev --require-approval never
+          pnpm --filter throwtrash-cloudfront run deploy:dev
       - name: Invalidate CloudFront cache
         env:
           STACK_NAME: throwtrash-cloudfront-dev

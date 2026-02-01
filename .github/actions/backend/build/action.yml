@@ -19,6 +19,7 @@ runs:
     - name: Build backend
       shell: bash
       run: pnpm --filter backend run build
+    # Pnpmの構造上,node_modulesはワークスペース直下の実体へのリンクになるためrsync -aLで実体をコピーする
     - name: Prepare layer directory
       shell: bash
       run: |
