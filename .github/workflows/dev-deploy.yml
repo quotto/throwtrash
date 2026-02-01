@@ -74,7 +74,7 @@ jobs:
           echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/src/serviceAccountKey.json
           echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/apps/throwtrash-web/backend/src/serviceAccountKey.json" >> $GITHUB_ENV
       - name: Run backend tests
-        run: pnpm --filter backend run test -- --coverage
+        run: pnpm --filter backend run coverage --coverage
   mobile-backend-test:
     runs-on: ubuntu-latest
     steps:

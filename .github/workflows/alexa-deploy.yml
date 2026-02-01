@@ -49,15 +49,15 @@ jobs:
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-skill-deploy-role
           role-session-name: GitHubActions
           aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           cache: 'pnpm'
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.12.0
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: test
