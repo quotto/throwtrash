@@ -18,6 +18,13 @@ runs:
     - name: Build
       shell: bash
       run: pnpm --filter api run build
+    - name: Prepare layer directory
+      shell: bash
+      run: |
+        layer_root="apps/throwtrash-web/api/src/layer/nodejs"
+        rm -rf "${layer_root}/node_modules"
+        mkdir -p "${layer_root}/node_modules"
+        rsync -aL apps/throwtrash-web/api/src/node_modules/ "${layer_root}/node_modules/"
     - name: Archive Module
       uses: actions/upload-artifact@v4
       with:
@@ -28,9 +35,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: mobile-backend-layer
-        path: apps/throwtrash-web/api/src/node_modules
-    - name: Move dependencies to layer directory
-      shell: bash
-      run: |
-        mkdir -p apps/throwtrash-web/api/src/layer/nodejs
-        mv apps/throwtrash-web/api/src/node_modules apps/throwtrash-web/api/src/layer/nodejs/node_modules
+        path: apps/throwtrash-web/api/src/layer
