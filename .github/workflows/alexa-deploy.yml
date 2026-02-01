@@ -74,8 +74,7 @@ jobs:
       - name: layer-install
         run: |
           pnpm --filter throwtrash-alexa-skill install --prod --frozen-lockfile
-          mkdir -p apps/throwtrash-alexa-skill/app/libs/nodejs
-          mv apps/throwtrash-alexa-skill/app/node_modules apps/throwtrash-alexa-skill/app/libs/nodejs/node_modules
+          mkdir -p apps/throwtrash-alexa-skill/app/node_modules
       - uses: hashicorp/setup-terraform@v3
       - name: terraform-init
         working-directory: apps/throwtrash-alexa-skill

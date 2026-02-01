@@ -1,5 +1,5 @@
 import {getLogger, Logger, TrashData, ScheduleValue, EvweekValue, checkTrashes, ExcludeDate} from "trash-common";
-import type { TrashSchedulePayload } from "trash-common";
+import type { TrashSchedulePayload } from "./types.js";
 const logger: Logger = getLogger();
 import db from "./dbadapter.js"
 import {BackendResponse, SessionItem} from "./interface.js"
@@ -102,7 +102,7 @@ export default async(body: any,session: SessionItem): Promise<BackendResponse>=>
             };
         }
         const regist_data = adjusted;
-        if (!checkTrashes(regist_data.trashData, regist_data.globalExcludes)) {
+        if (!checkTrashes(regist_data.trashData)) {
             logger.error(`platform: ${session.platform}`);
             return {
                 statusCode: 400,

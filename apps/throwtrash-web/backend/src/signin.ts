@@ -28,8 +28,8 @@ const requestAmazonProfile = (access_token: string): Promise<SigninProfile> =>{
         }
         logger.error(response);
         throw new Error("Signin Failed");
-    }).catch(err=>{
-        logger.error(err);
+    }).catch((err: Error)=>{
+        logger.error(err.message);
         throw new Error("Amazon Signin Failed");
     });
 }
@@ -57,8 +57,8 @@ const requestGoogleProfile = (code: string): Promise<SigninProfile> =>{
         }
         logger.error(JSON.stringify(response));
         throw new Error("Signin Failed");
-    }).catch(err=>{
-        logger.error(err);
+    }).catch((err: Error)=>{
+        logger.error(err.message);
         throw new Error("Google Signin Failed");
     });
 }
@@ -119,8 +119,9 @@ export default async(params: any,session: SessionItem): Promise<BackendResponse>
             }
         }
         return error_def.UserError;
-    } catch(err: any) {
-        logger.error(err);
+    } catch(err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        logger.error(message);
         return error_def.ServerError;
     }
 }

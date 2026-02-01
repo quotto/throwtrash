@@ -4,35 +4,38 @@ import * as common from "trash-common"
 const logger = common.getLogger();
 logger.setLevel_DEBUG();
 
-const mockData001 = [
-    {
-        id: "1234567",
-        type: "burn",
-        trash_val: "",
-        schedules: [
-            {
-                type: "weekday",
-                value: "0"
-            },{
-                type: "biweek",
-                value: "1-1"
-            }
-        ]
-    },{
-        id: "8901234",
-        type: "other",
-        trash_val: "生ゴミ",
-        schedules: [
-            {
-                type: "evweek",
-                value: {
-                    weekday: "2",
-                    start: "2020-03-10"
+const mockData001 = {
+    trashData: [
+        {
+            id: "1234567",
+            type: "burn",
+            trash_val: "",
+            schedules: [
+                {
+                    type: "weekday",
+                    value: "0"
+                },{
+                    type: "biweek",
+                    value: "1-1"
                 }
-            }
-        ]
-    }
-];
+            ]
+        },{
+            id: "8901234",
+            type: "other",
+            trash_val: "生ゴミ",
+            schedules: [
+                {
+                    type: "evweek",
+                    value: {
+                        weekday: "2",
+                        start: "2020-03-10"
+                    }
+                }
+            ]
+        }
+    ],
+    globalExcludes: []
+};
 
 jest.mock("../dbadapter");
 import dbadapter from "../dbadapter";

@@ -1,6 +1,6 @@
 import property from "./property.js"
 import * as common from "trash-common";
-import type { TrashSchedulePayload } from "trash-common";
+import type { TrashSchedulePayload } from "./types.js";
 const logger = common.getLogger();
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";

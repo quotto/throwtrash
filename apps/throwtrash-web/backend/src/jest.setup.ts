@@ -1,8 +1,4 @@
-import { jest } from "@jest/globals";
-
-// ESM 環境でも jest をグローバルに参照できるようにする
-const globalAny = globalThis as Record<string, unknown>;
-globalAny.jest = jest;
+import "@jest/globals";
 
 // AWS SDK が参照するリージョンをテスト用に固定する
 if (!process.env.AWS_REGION) {

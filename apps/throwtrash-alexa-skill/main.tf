@@ -28,8 +28,9 @@ data "archive_file" "app_zip" {
 
 data "archive_file" "libs_zip" {
   type        = "zip"
-  source_dir  = "${path.root}/app/libs"
+  source_dir  = "${path.root}/app/node_modules"
   output_path = "${path.root}/app/libs.zip"
+  excludes    = [".bin"]
 }
 
 variable "AppID" {
