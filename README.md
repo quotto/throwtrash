@@ -52,3 +52,6 @@ GitHub Actions を利用します。各ワークフローは以下のパス変�
 - alexa-skill: `apps/throwtrash-alexa-skill/**`
 - common: `packages/trash-common/**`
 
+## API ドキュメント
+- Backend: `apps/throwtrash-web/backend/docs/backend-openapi.yaml`
+- API (モバイル/共有): `apps/throwtrash-web/api/docs/api-openapi.yaml`

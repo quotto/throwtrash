@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: ThrowTrash Public API
+  version: "2026-02-01"
+  description: モバイルアプリやアシスタント連携クライアントが利用するゴミ出しスケジュール API 群。
+servers:
+  - url: https://{domain}/{stage}
+    description: API Gateway エンドポイント
+    variables:
+      domain:
+        default: api.example.com
+      stage:
+        default: prod
+tags:
+  - name: User
+  - name: Schedule
+  - name: Sharing
+  - name: AlexaSkill
+  - name: Migration
+paths:
+  /register:
+    post:
+      tags: [User]
+      summary: 利用者登録
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                platform:
+                  type: string
+              required: [platform]
+      responses:
+        '200':
+          description: 発行されたユーザー ID とタイムスタンプ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  timestamp:
+                    type: integer
+                    description: Unix time (ms)
+                required: [id, timestamp]
+        '400':
+          description: パラメータ不正
+        '500':
+          description: 登録失敗
+  /update:
+    post:
+      tags: [Schedule]
+      summary: スケジュール更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleUpdate'
+      responses:
+        '200':
+          description: 更新後のタイムスタンプ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timestamp:
+                    type: integer
+                required: [timestamp]
+        '400':
+          description: バリデーションエラー/タイムスタンプ不一致
+        '500':
+          description: 更新失敗
+  /start_link:
+    get:
+      tags: [AlexaSkill]
+      summary: アカウントリンク開始
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: platform
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [android, ios]
+      responses:
+        '200':
+          description: アカウントリンク URL とトークン
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  url:
+                    type: string
+                    format: uri
+                required: [token, url]
+        '400':
+          description: パラメータ不足
+        '500':
+          description: 内部エラー
+  /sync:
+    get:
+      tags: [Schedule]
+      summary: スケジュール同期
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 現在のスケジュール
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrashScheduleItem'
+        '400':
+          description: ユーザーが存在しない/パラメータ不足
+        '500':
+          description: 共有同期失敗
+  /publish_activation_code:
+    get:
+      tags: [Sharing]
+      summary: データ共有用アクティベーションコード発行
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 発行された 10 桁コード
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                required: [code]
+        '400':
+          description: ユーザーなし
+        '500':
+          description: コード発行失敗
+  /activate:
+    get:
+      tags: [Sharing]
+      summary: アクティベーションコード適用
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: code
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 共有データを反映したスケジュール
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                  timestamp:
+                    type: integer
+                required: [description, timestamp]
+        '400':
+          description: コード不正
+        '500':
+          description: 更新失敗
+  /enable_skill:
+    get:
+      tags: [AlexaSkill]
+      summary: スキル有効化
+      description: Login with Amazon コールバック後に Alexa Skill へ有効化 API を呼び出す。
+      parameters:
+        - { name: code, in: query, required: true, schema: { type: string } }
+        - { name: token, in: query, required: true, schema: { type: string } }
+        - { name: state, in: query, required: true, schema: { type: string } }
+        - { name: redirect_uri, in: query, required: true, schema: { type: string, format: uri } }
+      responses:
+        '301':
+          description: スキル有効化完了ページへリダイレクト
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+        '301-Error':
+          $ref: '#/components/responses/ErrorRedirect'
+  /migration/v2:
+    get:
+      tags: [Migration]
+      summary: タイムスタンプ更新
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 更新後の timestamp
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timestamp:
+                    type: integer
+                required: [timestamp]
+        '400':
+          description: パラメータ不足
+        '500':
+          description: 更新失敗
+components:
+  responses:
+    ErrorRedirect:
+      description: エラーページへリダイレクト
+      headers:
+        Location:
+          schema:
+            type: string
+            format: uri
+  schemas:
+    ScheduleUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+          description: ゴミ出しスケジュール JSON
+        platform:
+          type: string
+        shared_id:
+          type: string
+        timestamp:
+          type: integer
+      required: [id, description, timestamp]
+    TrashScheduleItem:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        platform:
+          type: string
+        shared_id:
+          type: string
+        timestamp:
+          type: integer

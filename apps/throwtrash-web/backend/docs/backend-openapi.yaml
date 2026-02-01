@@ -1,0 +1,396 @@
+openapi: 3.0.3
+info:
+  title: ThrowTrash Backend Authorization API
+  version: "2026-02-01"
+  description: >
+    Alexa/Google アシスタントとのアカウントリンクおよびスケジュール登録を扱うバックエンド API 群。
+    既存セッションを示す cookie `throwaway-session` を付与することでクライアント状態を引き継ぐ。
+servers:
+  - url: https://{domain}/{stage}
+    description: API Gateway エンドポイント（例 https://xxxxx.execute-api.ap-northeast-1.amazonaws.com/prod）
+    variables:
+      domain:
+        default: backend.example.com
+        description: API Gateway ドメイン名
+      stage:
+        default: v6
+        description: デプロイステージ名
+tags:
+  - name: Session
+    description: セッション維持と OAuth フロー
+  - name: Signin
+    description: サインイン/ユーザー情報取得
+  - name: Registration
+    description: ゴミ出しスケジュール登録
+  - name: Token
+    description: アクセストークン/認可コード
+paths:
+  /oauth_request:
+    get:
+      tags: [Session]
+      summary: OAuth セッション初期化
+      description: >
+        Alexa / Google クライアントから state・client 情報を受け取り、サーバー側セッションに保存した後、フロントエンドにリダイレクトする。
+        既存セッションが無い場合は新規発行し、Set-Cookie で返す。
+      parameters:
+        - $ref: '#/components/parameters/SessionCookie'
+        - { name: state, in: query, required: true, schema: { type: string } }
+        - { name: client_id, in: query, required: true, schema: { type: string } }
+        - { name: redirect_uri, in: query, required: true, schema: { type: string, format: uri } }
+        - { name: platform, in: query, required: true, schema: { type: string, enum: [amazon, google] } }
+      responses:
+        '301':
+          description: フロントエンドへリダイレクト
+          headers:
+            Location:
+              description: フロントエンド index への URL
+              schema: { type: string, format: uri }
+            Set-Cookie:
+              description: 新規セッションの場合のみ返却される `throwaway-session`
+              schema: { type: string }
+        '301-Error':
+          $ref: '#/components/responses/ErrorRedirect'
+  /signin:
+    get:
+      tags: [Signin]
+      summary: サインイン完了処理
+      description: >
+        Login with Amazon もしくは Google からのコールバックを受け取り、ユーザー情報をセッションへ保存後フロントエンドにリダイレクトする。
+      parameters:
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: service
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [amazon, google]
+        - name: access_token
+          in: query
+          required: false
+          description: Amazon サインイン時のみ必須
+          schema: { type: string }
+        - name: code
+          in: query
+          required: false
+          description: Google サインイン時のみ必須
+          schema: { type: string }
+        - name: state
+          in: query
+          required: false
+          description: Google サインインで CSRF 防止のために照合
+          schema: { type: string }
+      responses:
+        '301':
+          description: サインイン完了後フロントエンドへリダイレクト
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+            "Cache-Control":
+              schema: { type: string }
+        '301-Error':
+          $ref: '#/components/responses/ErrorRedirect'
+  /google_signin:
+    get:
+      tags: [Signin]
+      summary: Google アカウントサインイン開始
+      description: 既存セッションへ Google state を保存し、Google OAuth2 認可エンドポイントへリダイレクトする。
+      parameters:
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '301':
+          description: Google OAuth2 へのリダイレクト
+          headers:
+            Location:
+              description: Google 認可エンドポイント
+              schema: { type: string, format: uri }
+            "Cache-Control":
+              schema: { type: string }
+        '301-Error':
+          $ref: '#/components/responses/ErrorRedirect'
+  /signout:
+    get:
+      tags: [Signin]
+      summary: サインアウト
+      parameters:
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: サインアウト結果
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: '"signout"もしくは空文字'
+        '301-Error':
+          $ref: '#/components/responses/ErrorRedirect'
+  /user_info:
+    get:
+      tags: [Signin]
+      summary: サインインユーザー情報取得
+      description: セッションに保持されたユーザー名・プリセット情報を返す。
+      parameters:
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoResponse'
+        '301-Error':
+          $ref: '#/components/responses/ErrorRedirect'
+  /regist:
+    post:
+      tags: [Registration]
+      summary: ゴミ出しスケジュール登録
+      description: >
+        セッション状態と送信されたごみ出しスケジュールを検証し、データベースに永続化した上で Authorization Code を発行する。
+      parameters:
+        - $ref: '#/components/parameters/SessionCookie'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Authorization Code を付与したリダイレクト URL（プレーンテキスト）
+          headers:
+            "Cache-Control":
+              schema: { type: string }
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: 認可サービスへ遷移する URL
+        '400':
+          description: 入力不正
+        '500':
+          description: 登録失敗
+  /request_accesstoken:
+    post:
+      tags: [Token]
+      summary: アクセストークン発行
+      description: >
+        Authorization Code または Refresh Token を受け取り、Alexa/Google クライアント向けのアクセストークンとリフレッシュトークンを生成する。
+        Alexa クライアントは Basic 認証、Google クライアントは body 内の client_secret で認証する。
+      parameters:
+        - name: Authorization
+          in: header
+          required: false
+          schema:
+            type: string
+            example: Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0
+          description: Alexa クライアントの場合に使用
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        '200':
+          description: 発行したアクセストークン
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessTokenResponse'
+        '400':
+          description: 認証/入力エラー
+        '500':
+          description: サーバーエラー
+  /request_authorization_code:
+    get:
+      tags: [Token]
+      summary: 認可コード発行
+      description: Alexa Skill からのスキル有効化フローで使用される認可コードを返す。
+      security:
+        - BackendApiKey: []
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: client_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: redirect_uri
+          in: query
+          required: true
+          schema: { type: string, format: uri }
+      responses:
+        '200':
+          description: 認可コード
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationCodeResponse'
+        '400':
+          description: 入力不正
+        '500':
+          description: 発行失敗
+components:
+  parameters:
+    SessionCookie:
+      name: throwaway-session
+      in: cookie
+      required: false
+      description: 既存セッション ID
+      schema:
+        type: string
+  responses:
+    ErrorRedirect:
+      description: エラー時は 301 でエラーページへリダイレクト
+      headers:
+        Location:
+          description: 400/500 ページの URL
+          schema:
+            type: string
+            format: uri
+  securitySchemes:
+    BackendApiKey:
+      type: apiKey
+      name: x-api-key
+      in: header
+  schemas:
+    UserInfoResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        preset:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/TrashData'
+        globalExcludes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExcludeDate'
+      required: [name, preset, globalExcludes]
+    RegisterRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrashSubmission'
+        globalExcludes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExcludeDate'
+        nextdayflag:
+          type: boolean
+      required: [data]
+    TrashSubmission:
+      type: object
+      properties:
+        type:
+          type: string
+          description: trash-common で定義される種類識別子
+        trash_val:
+          type: string
+          description: type が other の場合のみ利用
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleValue'
+        excludes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExcludeDate'
+      required: [type, schedules, excludes]
+    ScheduleValue:
+      type: object
+      properties:
+        type:
+          type: string
+          description: daily / weekly / evweek など
+        value:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/EvWeekValue'
+      required: [type, value]
+    EvWeekValue:
+      type: object
+      properties:
+        weekday:
+          type: string
+        interval:
+          type: integer
+          minimum: 1
+        start:
+          type: string
+          format: date
+      required: [weekday, start]
+    ExcludeDate:
+      type: object
+      properties:
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        date:
+          type: integer
+          minimum: 1
+          maximum: 31
+      required: [month, date]
+    TokenRequest:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          enum: [authorization_code, refresh_token]
+        code:
+          type: string
+        redirect_uri:
+          type: string
+          format: uri
+        client_id:
+          type: string
+        client_secret:
+          type: string
+          description: Google クライアントで使用
+        refresh_token:
+          type: string
+      required: [grant_type, client_id]
+    AccessTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+        refresh_token:
+          type: string
+      required: [access_token, token_type, expires_in]
+    AuthorizationCodeResponse:
+      type: object
+      properties:
+        code:
+          type: string
+      required: [code]
+    TrashData:
+      type: object
+      properties:
+        type:
+          type: string
+        trash_val:
+          type: string
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleValue'
+        excludes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExcludeDate'
+      required: [type, schedules]
