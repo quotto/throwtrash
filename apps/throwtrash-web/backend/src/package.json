@@ -10,7 +10,7 @@
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
     "coverage": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --coverage",
-    "build": "tsc --build tsconfig.build.json"
+    "build": "tsc --build tsconfig.build.json && cp package.json backend-dist/package.json"
   },
   "author": "",
   "license": "ISC",
