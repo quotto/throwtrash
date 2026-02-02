@@ -31,6 +31,7 @@
 ## タスク一覧
 - ✅ `backend-dist` 配下を Jest から ignore して backend テストを通す（既存の duplicate manual mock 対応）
 - ✅ データモデルの optional 全体例外日フィールド追加と限定 10 件の上限チェック（Trash Common + API interface）
+- ✅ apps/throwtrash-web/api の更新処理で globalExcludes を検証し、上限超過や不正日付を拒否する
 - ✅ バックエンドで全体例外日を保存・読み込み・検証する処理を追加し、個別例外日との OR 判定に統合
 - ✅ フロントエンドに全体例外日専用ページを追加し、既存の個別例外日設定と OR 条件で送信できる UI/バリデーションを整備（UI テスト含む）
 - ✅ 全体例外日ロジックを共通モジュールに集約し、単体テストで正常系/異常系をカバー

@@ -20,8 +20,13 @@ export type TrashData = {
 export type TrashSchedule = {
     trashData: TrashData[];
     checkedNextday: boolean;
+    globalExcludes?: ExcludeDate[];
 };
 export type ExcludeDate = {
     month: number;
     date: number;
+};
+export type TrashSchedulePayload = {
+    trashData: TrashData[];
+    globalExcludes?: ExcludeDate[];
 };

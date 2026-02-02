@@ -29,7 +29,25 @@ export function existSchedule(schedules) {
         return element.type != "none";
     });
 }
-export function checkTrashes(trashes) {
+export function checkTrashes(trashes, globalExcludes) {
+    const excludes = globalExcludes ?? [];
+    if (excludes.length > 10) {
+        return false;
+    }
+    const hasInvalidExclude = excludes.some((exclude) => {
+        if (exclude.month < 1 || exclude.month > 12)
+            return true;
+        if (exclude.date < 1)
+            return true;
+        if (exclude.month === 2)
+            return exclude.date > 29;
+        if ([1, 3, 5, 7, 8, 10, 12].includes(exclude.month))
+            return exclude.date > 31;
+        return exclude.date > 30;
+    });
+    if (hasInvalidExclude) {
+        return false;
+    }
     return trashes && (trashes.length > 0) && trashes.every((trash) => {
         return trash.schedules && trash.schedules.every((schedule) => {
             if (schedule.type === "month") {

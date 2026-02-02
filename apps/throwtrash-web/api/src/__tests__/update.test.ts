@@ -97,6 +97,18 @@ describe("update",()=>{
             description: JSON.stringify(mockSchedule001)
         }),expect.any(Number));
     });
+    it("globalExcludesが指定された場合でも更新できる",async()=>{
+        const scheduleWithGlobalExcludes = { trashData: mockData001, globalExcludes: [{ month: 1, date: 1 }, { month: 12, date: 31 }] };
+        const result = await update({ description: JSON.stringify(scheduleWithGlobalExcludes), platform: "android", id: "id001", timestamp: 1234567 }) as APIGatewayProxyStructuredResultV2;
+        const body = JSON.parse(result.body!);
+        expect(result.statusCode).toBe(200);
+        expect(body.timestamp).toBeGreaterThan(0);
+        expect(jest.mocked(dbadapter.putExistTrashSchedule)).toBeCalledWith(expect.objectContaining({
+            id: "id001",
+            platform: "android",
+            description: JSON.stringify(scheduleWithGlobalExcludes)
+        }),expect.any(Number));
+    });
     it("shared_idが設定されている場合の更新",async()=>{
         jest.mocked(dbadapter.getTrashScheduleByUserId).mockImplementationOnce(async(user_id: string)=>{
             return {
@@ -132,6 +144,13 @@ describe("update",()=>{
     });
     it("登録データが異常の場合はユーザーエラー",async()=>{
         const result = await update({id: "id001", description: JSON.stringify([{type: "burn"}]),
+        platform: "android",timestamp: 1234567}) as APIGatewayProxyStructuredResultV2;
+        expect(result.statusCode).toBe(400);
+    });
+    it("globalExcludesが上限を超過している場合はユーザーエラー",async()=>{
+        const overLimitExcludes = Array.from({ length: 11 }, (_, index) => ({ month: 1, date: index + 1 }));
+        const scheduleWithOverLimit = { trashData: mockData001, globalExcludes: overLimitExcludes };
+        const result = await update({id: "id001", description: JSON.stringify(scheduleWithOverLimit),
         platform: "android",timestamp: 1234567}) as APIGatewayProxyStructuredResultV2;
         expect(result.statusCode).toBe(400);
     });

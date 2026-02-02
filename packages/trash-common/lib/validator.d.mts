@@ -1,4 +1,4 @@
-import type { TrashData, ScheduleValue } from "./types.mts";
+import type { TrashData, ScheduleValue, ExcludeDate } from "./types.mts";
 export declare function isNotEmpty(value: string | number | undefined | null): boolean;
 export declare function isNumber(value: string | number): boolean;
 export declare function isNotLessMin(value: number, min?: number): boolean;
@@ -8,6 +8,6 @@ export declare function isValidTrashVal(value: string): boolean;
 export declare function isValidMonthValue(month_val: string | number): boolean;
 export declare function isValidTrashType(trash: TrashData, maxlength: number): boolean;
 export declare function existSchedule(schedules: ScheduleValue[]): boolean;
-export declare function checkTrashes(trashes: TrashData[]): boolean;
+export declare function checkTrashes(trashes: TrashData[], globalExcludes?: ExcludeDate[]): boolean;
 export declare function generateUUID(separator?: string): string;
 export declare function generateRandomCode(length?: number): string;

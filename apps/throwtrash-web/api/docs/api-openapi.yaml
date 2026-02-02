@@ -4,13 +4,13 @@ info:
   version: "2026-02-01"
   description: モバイルアプリやアシスタント連携クライアントが利用するゴミ出しスケジュール API 群。
 servers:
-  - url: https://{domain}/{stage}
-    description: API Gateway エンドポイント
+  - url: https://{domain}/mobile/{stage}
+    description: API エンドポイント
     variables:
       domain:
-        default: api.example.com
+        default: apps.mythrowaway.net
       stage:
-        default: prod
+        default: v6
 tags:
   - name: User
   - name: Schedule
@@ -241,7 +241,8 @@ components:
           type: string
         description:
           type: string
-          description: ゴミ出しスケジュール JSON
+          description: ゴミ出しスケジュール JSON（TrashScheduleDescription）
+          example: '{"trashData":[{"id":"1234567","type":"burn","trash_val":"","schedules":[{"type":"weekday","value":"0"}]}],"globalExcludes":[{"month":1,"date":1}]}'
         platform:
           type: string
         shared_id:
@@ -256,9 +257,70 @@ components:
           type: string
         description:
           type: string
+          description: ゴミ出しスケジュール JSON（TrashScheduleDescription）
+          example: '{"trashData":[{"id":"1234567","type":"burn","trash_val":"","schedules":[{"type":"weekday","value":"0"}]}],"globalExcludes":[{"month":1,"date":1}]}'
         platform:
           type: string
         shared_id:
           type: string
         timestamp:
           type: integer
+    TrashScheduleDescription:
+      type: object
+      description: description フィールドに格納する JSON オブジェクト
+      properties:
+        trashData:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrashData'
+        globalExcludes:
+          type: array
+          description: 全体例外日（最大10件）
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ExcludeDate'
+      required: [trashData]
+    ExcludeDate:
+      type: object
+      properties:
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        date:
+          type: integer
+          minimum: 1
+          maximum: 31
+      required: [month, date]
+    TrashData:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        trash_val:
+          type: string
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleValue'
+      required: [type, schedules]
+    ScheduleValue:
+      type: object
+      properties:
+        type:
+          type: string
+        value:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                weekday:
+                  type: string
+                start:
+                  type: string
+                interval:
+                  type: integer
+              required: [weekday, start]
+      required: [type, value]

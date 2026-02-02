@@ -11,8 +11,9 @@ export default async (trashScheduleItem: TrashScheduleItem): Promise<APIGatewayP
     try {
         const parsed = JSON.parse(trashScheduleItem.description);
         const trashData: TrashData[] = Array.isArray(parsed) ? parsed : parsed?.trashData ?? [];
+        const globalExcludes = Array.isArray(parsed?.globalExcludes) ? parsed.globalExcludes : [];
         // データチェックの結果に問題がなければ登録する
-        if (common.checkTrashes(trashData)) {
+        if (common.checkTrashes(trashData, globalExcludes)) {
             const timestamp = new Date().getTime()
             logger.debug(`update trash schedule -> ${JSON.stringify(trashScheduleItem)}`);
             const currentTrashSchedule = await dbadapter.getTrashScheduleByUserId(trashScheduleItem.id);

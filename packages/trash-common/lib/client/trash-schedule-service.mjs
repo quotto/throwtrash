@@ -2,6 +2,29 @@ import moment from "moment-timezone";
 import { decode } from "@msgpack/msgpack";
 import { getLogger } from "../logger.mjs";
 const logger = getLogger();
+const mergeExcludeDates = (trashExcludes, globalExcludes) => {
+    const merged = [...(trashExcludes ?? []), ...globalExcludes];
+    const seen = new Set();
+    return merged.filter((exclude) => {
+        const key = `${exclude.month}-${exclude.date}`;
+        if (seen.has(key))
+            return false;
+        seen.add(key);
+        return true;
+    });
+};
+const applyGlobalExcludes = (trashes, globalExcludes) => {
+    if (globalExcludes.length === 0) {
+        return trashes.map((trash) => ({
+            ...trash,
+            excludes: trash.excludes ? [...trash.excludes] : []
+        }));
+    }
+    return trashes.map((trash) => ({
+        ...trash,
+        excludes: mergeExcludeDates(trash.excludes, globalExcludes)
+    }));
+};
 export class TrashScheduleService {
     dbAdapter;
     timezone;
@@ -28,9 +51,11 @@ export class TrashScheduleService {
             if (user_id) {
                 const scheduleData = await this.dbAdapter.getTrashSchedule(user_id);
                 if (scheduleData && scheduleData.trashData.length > 0) {
+                    const globalExcludes = scheduleData.globalExcludes ?? [];
+                    const mergedTrashData = applyGlobalExcludes(scheduleData.trashData, globalExcludes);
                     return {
                         status: "success",
-                        response: scheduleData.trashData,
+                        response: mergedTrashData,
                         checkedNextday: scheduleData.checkedNextday
                     };
                 }
