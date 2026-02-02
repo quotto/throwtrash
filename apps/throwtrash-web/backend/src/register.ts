@@ -102,7 +102,7 @@ export default async(body: any,session: SessionItem): Promise<BackendResponse>=>
             };
         }
         const regist_data = adjusted;
-        if (!checkTrashes(regist_data.trashData)) {
+        if (!checkTrashes(regist_data.trashData, regist_data.globalExcludes)) {
             logger.error(`platform: ${session.platform}`);
             return {
                 statusCode: 400,

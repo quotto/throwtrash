@@ -99,8 +99,22 @@ export function existSchedule(schedules: Array<{ type: string }>): boolean {
 }
 
 export function checkTrashes(
-  trashes: Array<{ schedules: Array<{ type: string; value: string | { weekday: string; start: string; interval?: number } }>; type: string; trash_val?: string }>
+  trashes: Array<{ schedules: Array<{ type: string; value: string | { weekday: string; start: string; interval?: number } }>; type: string; trash_val?: string }>,
+  globalExcludes: Array<{ month: number; date: number }> = []
 ): boolean {
+  if (globalExcludes.length > 10) {
+    return false;
+  }
+  const hasInvalidExclude = globalExcludes.some((exclude) => {
+    if (exclude.month < 1 || exclude.month > 12) return true;
+    if (exclude.date < 1) return true;
+    if (exclude.month === 2) return exclude.date > 29;
+    if ([1, 3, 5, 7, 8, 10, 12].includes(exclude.month)) return exclude.date > 31;
+    return exclude.date > 30;
+  });
+  if (hasInvalidExclude) {
+    return false;
+  }
   return (
     trashes &&
     trashes.length > 0 &&
