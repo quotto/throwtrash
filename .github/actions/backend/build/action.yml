@@ -13,12 +13,9 @@ runs:
       with:
         node-version: '22.x'
         cache: 'pnpm'
-    - name: Install dependencies
-      shell: bash
-      run: pnpm install --frozen-lockfile
     - name: Build backend
       shell: bash
-      run: pnpm --filter backend run build
+      run: pnpm --filter backend deploy --prod apps/throwtrash-web/backend/src/backend-dist
     # Pnpmの構造上,node_modulesはワークスペース直下の実体へのリンクになるためrsync -aLで実体をコピーする
     - name: Prepare layer directory
       shell: bash
@@ -26,7 +23,8 @@ runs:
         layer_root="apps/throwtrash-web/backend/src/layer/nodejs"
         rm -rf "${layer_root}/node_modules"
         mkdir -p "${layer_root}/node_modules"
-        rsync -aL apps/throwtrash-web/backend/src/node_modules/ "${layer_root}/node_modules/"
+        rsync -aL "apps/throwtrash-web/backend/src/backend-dist/node_modules" "${layer_root}/node_modules/"
+        rm -rf "apps/throwtrash-web/backend/src/backend-dist/node_modules"
     - name: Archive backend
       uses: actions/upload-artifact@v4
       with:

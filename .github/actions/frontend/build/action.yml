@@ -22,10 +22,10 @@ runs:
         cache: 'pnpm'
     - name: Install dependencies
       shell: bash
-      run: pnpm install --frozen-lockfile
+      run: pnpm --filter trashschedule-next install --frozen-lockfile
     - name: Build frontend
       shell: bash
-      run: pnpm --filter trashschedule-next build
+      run: pnpm --filter trashschedule-next run build
       env:
         FRONTEND_STAGE: ${{ inputs.frontend-stage }}
         NEXT_PUBLIC_API_BASE: ${{ inputs.api-base }}
