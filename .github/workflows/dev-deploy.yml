@@ -140,6 +140,11 @@ jobs:
           echo "BACKEND_STAGE=${{ needs.set-stage.outputs.BACKEND_STAGE }}"
           echo "FRONTEND_STAGE=${{ needs.set-stage.outputs.FRONTEND_STAGE }}"
           du -sh apps/throwtrash-web/backend/src/backend-dist
+          du -sh apps/throwtrash-web/backend/src/backend-dist/node_modules || true
+          du -sh apps/throwtrash-web/backend/src/layer || true
+          du -sh apps/throwtrash-web/backend/src/layer/nodejs/node_modules || true
+          find apps/throwtrash-web/backend/src/layer -type l | wc -l || true
+          find apps/throwtrash-web/backend/src/layer -type f | wc -l || true
           du -sh apps/throwtrash-web/backend/src/layer/nodejs
           aws --version
           aws sts get-caller-identity
@@ -176,6 +181,11 @@ jobs:
           echo "BACKEND_STAGE=${{ needs.set-stage.outputs.BACKEND_STAGE }}"
           echo "FRONTEND_STAGE=${{ needs.set-stage.outputs.FRONTEND_STAGE }}"
           du -sh apps/throwtrash-web/api/src/api-dist
+          du -sh apps/throwtrash-web/api/src/api-dist/node_modules || true
+          du -sh apps/throwtrash-web/api/src/layer || true
+          du -sh apps/throwtrash-web/api/src/layer/nodejs/node_modules || true
+          find apps/throwtrash-web/api/src/layer -type l | wc -l || true
+          find apps/throwtrash-web/api/src/layer -type f | wc -l || true
           du -sh apps/throwtrash-web/api/src/layer/nodejs
           aws --version
           aws sts get-caller-identity
