@@ -15,16 +15,16 @@ runs:
         cache: 'pnpm'
     - name: Build backend
       shell: bash
-      run: pnpm --filter backend deploy --prod apps/throwtrash-web/backend/src/backend-dist
-    # Pnpmの構造上,node_modulesはワークスペース直下の実体へのリンクになるためrsync -aLで実体をコピーする
-    # - name: Prepare layer directory
-    #   shell: bash
-    #   run: |
-    #     layer_root="apps/throwtrash-web/backend/src/layer/nodejs"
-    #     rm -rf "${layer_root}/node_modules"
-    #     mkdir -p "${layer_root}/node_modules"
-    #     rsync -aL "apps/throwtrash-web/backend/src/backend-dist/node_modules" "${layer_root}/node_modules/"
-    #     rm -rf "apps/throwtrash-web/backend/src/backend-dist/node_modules"
+      run: PNPM_NODE_LINKER=hoisted pnpm --filter backend deploy --prod apps/throwtrash-web/backend/src/backend-dist
+    - name: Prepare backend layer
+      shell: bash
+      run: |
+        set -euo pipefail
+        # pnpm の symlink を避けるため hoisted の node_modules をレイヤーに移す
+        layer_root="apps/throwtrash-web/backend/src/layer/nodejs"
+        rm -rf "${layer_root}"
+        mkdir -p "${layer_root}"
+        mv "apps/throwtrash-web/backend/src/backend-dist/node_modules" "${layer_root}/node_modules"
     - name: Archive backend
       uses: actions/upload-artifact@v4
       with:
@@ -35,5 +35,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: backend-layer
-        path: apps/throwtrash-web/backend/src/backend-dist/node_modules
+        path: apps/throwtrash-web/backend/src/layer
         retention-days: 1

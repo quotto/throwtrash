@@ -63,7 +63,7 @@ Resources:
   FunctionLayer:
     Type: "AWS::Serverless::LayerVersion"
     Properties:
-      ContentUri: ./src/api-dist/node_modules
+      ContentUri: ./src/layer
       LayerName: !Sub "throwtrash-mobile-layer-${Stage}"
       CompatibleRuntimes:
         - nodejs22.x
