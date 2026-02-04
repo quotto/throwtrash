@@ -33,6 +33,6 @@ runs:
     - name: Archive Layer
       uses: actions/upload-artifact@v4
       with:
-        name: mobile-backend-layer
+        name: mobile-layer
         path: apps/throwtrash-web/api/src/api-dist/node_modules
         retention-days: 1
