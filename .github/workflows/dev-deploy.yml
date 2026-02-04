@@ -140,7 +140,7 @@ jobs:
           echo "BACKEND_STAGE=${{ needs.set-stage.outputs.BACKEND_STAGE }}"
           echo "FRONTEND_STAGE=${{ needs.set-stage.outputs.FRONTEND_STAGE }}"
           du -sh apps/throwtrash-web/backend/src/backend-dist
-          du -sh apps/throwtrash-web/backend/src/backend-dist/node_modules
+          du -sh apps/throwtrash-web/backend/src/layer/nodejs
           aws --version
           aws sts get-caller-identity
       - name: Module Deploy
@@ -176,7 +176,7 @@ jobs:
           echo "BACKEND_STAGE=${{ needs.set-stage.outputs.BACKEND_STAGE }}"
           echo "FRONTEND_STAGE=${{ needs.set-stage.outputs.FRONTEND_STAGE }}"
           du -sh apps/throwtrash-web/api/src/api-dist
-          du -sh apps/throwtrash-web/api/src/api-dist/node_modules
+          du -sh apps/throwtrash-web/api/src/layer/nodejs
           aws --version
           aws sts get-caller-identity
       - name: Module Deploy

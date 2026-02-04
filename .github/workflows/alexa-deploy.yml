@@ -70,13 +70,13 @@ jobs:
           pnpm --filter throwtrash-alexa-skill run test
       - name: build
         run: |
-          pnpm --filter throwtrash-alexa-skill deploy --prod apps/throwtrash-alexa-skill/app/dist
+          PNPM_NODE_LINKER=hoisted pnpm --filter throwtrash-alexa-skill deploy --prod apps/throwtrash-alexa-skill/app/dist
       - name: layer-install
         run: |
-          pnpm --filter throwtrash-alexa-skill install --prod --frozen-lockfile
-          layer_root="apps/throwtrash-alexa-skill/app/node_modules"
-          rsync -aL "apps/throwtrash-alexa-skill/app/dist/node_modules/" "${layer_root}/"
-          rm -rf "apps/throwtrash-alexa-skill/app/dist/node_modules"
+          layer_root="apps/throwtrash-alexa-skill/app/layer/nodejs"
+          rm -rf "${layer_root}"
+          mkdir -p "${layer_root}"
+          mv "apps/throwtrash-alexa-skill/app/dist/node_modules" "${layer_root}/node_modules"
       - uses: hashicorp/setup-terraform@v3
       - name: terraform-init
         working-directory: apps/throwtrash-alexa-skill
