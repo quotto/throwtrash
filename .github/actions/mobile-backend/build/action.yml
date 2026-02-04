@@ -16,14 +16,14 @@ runs:
       shell: bash
       run: pnpm --filter api deploy --prod apps/throwtrash-web/api/src/api-dist
     # Pnpmの構造上,node_modulesはワークスペース直下の実体へのリンクになるためrsync -aLで実体をコピーする
-    - name: Prepare layer directory
-      shell: bash
-      run: |
-        layer_root="apps/throwtrash-web/api/src/layer/nodejs"
-        rm -rf "${layer_root}/node_modules"
-        mkdir -p "${layer_root}/node_modules"
-        rsync -aL apps/throwtrash-web/api/src/api-dist/node_modules/ "${layer_root}/node_modules/"
-        rm -rf "apps/throwtrash-web/api/src/api-dist/node_modules"
+    # - name: Prepare layer directory
+    #   shell: bash
+    #   run: |
+    #     layer_root="apps/throwtrash-web/api/src/layer/nodejs"
+    #     rm -rf "${layer_root}/node_modules"
+    #     mkdir -p "${layer_root}/node_modules"
+    #     rsync -aL apps/throwtrash-web/api/src/api-dist/node_modules/ "${layer_root}/node_modules/"
+    #     rm -rf "apps/throwtrash-web/api/src/api-dist/node_modules"
     - name: Archive Module
       uses: actions/upload-artifact@v4
       with:
@@ -34,4 +34,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: mobile-backend-layer
-        path: apps/throwtrash-web/api/src/layer
+        path: apps/throwtrash-web/api/src/api-dist/node_modules
+        retention-days: 1

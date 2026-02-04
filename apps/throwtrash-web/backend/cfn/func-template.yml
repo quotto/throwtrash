@@ -70,10 +70,10 @@ Resources:
   FunctionLayer:
     Type: "AWS::Serverless::LayerVersion"
     Properties:
-      ContentUri: ../src/layer
+      ContentUri: ../src/backend-dist/node_modules
       LayerName: !Sub "throwtrash-backend-layer-${Stage}"
       CompatibleRuntimes:
-        - nodejs16.x
+        - nodejs22.x
   LambdaFunction:
     Type: "AWS::Serverless::Function"
     DeletionPolicy: Retain
