@@ -70,7 +70,7 @@ jobs:
           pnpm --filter throwtrash-alexa-skill run test
       - name: build
         run: |
-          PNPM_NODE_LINKER=hoisted pnpm --filter throwtrash-alexa-skill deploy --prod apps/throwtrash-alexa-skill/app/dist
+          pnpm --config.node-linker=hoisted --filter throwtrash-alexa-skill deploy --prod apps/throwtrash-alexa-skill/app/dist
       - name: layer-install
         run: |
           layer_root="apps/throwtrash-alexa-skill/app/layer/nodejs"

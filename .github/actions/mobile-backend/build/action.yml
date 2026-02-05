@@ -15,8 +15,6 @@ runs:
     - name: Build
       shell: bash
       run: |
-        PNPM_NODE_LINKER=hoisted \
-        NPM_CONFIG_NODE_LINKER=hoisted \
         pnpm --config.node-linker=hoisted --filter api deploy --prod apps/throwtrash-web/api/src/api-dist
     - name: Prepare mobile backend layer
       shell: bash
