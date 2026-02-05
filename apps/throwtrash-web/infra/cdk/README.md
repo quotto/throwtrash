@@ -26,4 +26,5 @@ CF_CERT_ARN=arn:aws:acm:us-east-1:123456789012:certificate/xxxxxxxx-xxxx-xxxx-xx
 CF_FRONTEND_BUCKET=throwtrash-dev
 CF_BACKEND_API_DOMAIN=xxxx.execute-api.ap-northeast-1.amazonaws.com
 CF_MOBILE_API_DOMAIN=yyyy.execute-api.ap-northeast-1.amazonaws.com
+CF_ALARM_API_DOMAIN=zzzz.execute-api.ap-northeast-1.amazonaws.com
 ```

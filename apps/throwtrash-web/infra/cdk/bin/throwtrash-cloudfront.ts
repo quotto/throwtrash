@@ -17,7 +17,8 @@ const requiredEnv = [
   'CF_CERT_ARN',
   'CF_FRONTEND_BUCKET',
   'CF_BACKEND_API_DOMAIN',
-  'CF_MOBILE_API_DOMAIN'
+  'CF_MOBILE_API_DOMAIN',
+  'CF_ALARM_API_DOMAIN'
 ];
 
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
@@ -31,7 +32,8 @@ const config: CloudFrontStackConfig = {
   certificateArn: process.env.CF_CERT_ARN as string,
   frontendBucketName: process.env.CF_FRONTEND_BUCKET as string,
   backendApiDomain: process.env.CF_BACKEND_API_DOMAIN as string,
-  mobileApiDomain: process.env.CF_MOBILE_API_DOMAIN as string
+  mobileApiDomain: process.env.CF_MOBILE_API_DOMAIN as string,
+  alarmApiDomain: process.env.CF_ALARM_API_DOMAIN as string
 };
 
 new ThrowtrashCloudFrontStack(app, `throwtrash-cloudfront-${stage}`, config, {

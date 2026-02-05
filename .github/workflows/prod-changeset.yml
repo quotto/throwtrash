@@ -178,6 +178,7 @@ jobs:
           CF_CERT_ARN: ${{ vars.CF_CERT_ARN }}
           CF_BACKEND_API_DOMAIN: ${{ vars.CF_BACKEND_API_DOMAIN}}
           CF_MOBILE_API_DOMAIN: ${{ vars.CF_MOBILE_API_DOMAIN}}
+          CF_ALARM_API_DOMAIN: ${{ vars.CF_ALARM_API_DOMAIN }}
           CF_FRONTEND_BUCKET: throwtrash
         run: |
           set +e
