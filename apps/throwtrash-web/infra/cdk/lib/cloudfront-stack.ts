@@ -131,6 +131,14 @@ export class ThrowtrashCloudFrontStack extends cdk.Stack {
           originProtocolPolicy: 'https-only',
           originSslProtocols: ['TLSv1.2']
         }
+      },
+      {
+        id: alarmOriginId,
+        domainName: params.config.alarmApiDomain,
+        customOriginConfig: {
+          originProtocolPolicy: 'https-only',
+          originSslProtocols: ['TLSv1.2']
+        }
       }
     ];
 
