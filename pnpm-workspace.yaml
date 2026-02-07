@@ -1,5 +1,7 @@
 packages:
   - 'apps/**'
   - 'packages/*'
+  - '!apps/throwtrash-web/backend/backend-dist/**'
+  - '!apps/throwtrash-web/api/api-dist/**'
   - '!**/cdk.out/**'
   - '!**/node_modules/**'

@@ -9,8 +9,8 @@
 
 ## リポジトリ構成
 - apps/throwtrash-web/frontend/: Next.js フロントエンド
-- apps/throwtrash-web/backend/src/: サーバーサイド(TypeScript)
-- apps/throwtrash-web/api/src/: API サーバー(TypeScript)
+- apps/throwtrash-web/backend/: サーバーサイド(TypeScript)
+- apps/throwtrash-web/api/: API サーバー(TypeScript)
 - apps/throwtrash-web/infra/cdk/: CloudFront/CDK 構成
 - apps/throwtrash-alexa-skill/app/: Alexa スキル(TypeScript)
 - packages/trash-common/: 共通モジュール(TypeScript)

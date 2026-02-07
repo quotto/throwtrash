@@ -4,11 +4,10 @@ apps/throwtrash-web/frontend/coverage
 apps/throwtrash-web/backend/certs
 apps/throwtrash-web/backend/config.json
 apps/throwtrash-web/backend/serviceAccountKey.json
-apps/throwtrash-web/backend/src/serviceAccountKey.json
-apps/throwtrash-web/backend/src/backend-dist
+apps/throwtrash-web/backend/backend-dist
 apps/throwtrash-web/backend/cfn/package-template.yml
-apps/throwtrash-web/backend/src/__tests__/coverage
-apps/throwtrash-web/api/src/dist
+apps/throwtrash-web/backend/__tests__/coverage
+apps/throwtrash-web/api/api-dist
 apps/throwtrash-web/api/package-template.yml
 **/.next
 **/.env

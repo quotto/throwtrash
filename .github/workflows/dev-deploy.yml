@@ -71,8 +71,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Set GCP Credentials
         run: |
-          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/src/serviceAccountKey.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/apps/throwtrash-web/backend/src/serviceAccountKey.json" >> $GITHUB_ENV
+          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/serviceAccountKey.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/apps/throwtrash-web/backend/serviceAccountKey.json" >> $GITHUB_ENV
       - name: Run backend tests
         run: pnpm --filter backend run coverage --coverage
   mobile-backend-test:
@@ -126,7 +126,7 @@ jobs:
         uses: ./.github/actions/backend/build
       - name: Set GCP Credentials
         run: |
-          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/src/backend-dist/serviceAccountKey.json
+          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/backend-dist/serviceAccountKey.json
       - name: Deploy DB
         run: |
           aws cloudformation deploy --template-file apps/throwtrash-web/backend/cfn/db-template.yml --stack-name throwtrash-backend-db --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --region=${{ vars.AWS_DEFAULT_REGION }}
@@ -139,13 +139,13 @@ jobs:
           echo "ENV=${{ needs.set-stage.outputs.ENV }}"
           echo "BACKEND_STAGE=${{ needs.set-stage.outputs.BACKEND_STAGE }}"
           echo "FRONTEND_STAGE=${{ needs.set-stage.outputs.FRONTEND_STAGE }}"
-          du -sh apps/throwtrash-web/backend/src/backend-dist
-          du -sh apps/throwtrash-web/backend/src/backend-dist/node_modules || true
-          du -sh apps/throwtrash-web/backend/src/layer || true
-          du -sh apps/throwtrash-web/backend/src/layer/nodejs/node_modules || true
-          find apps/throwtrash-web/backend/src/layer -type l | wc -l || true
-          find apps/throwtrash-web/backend/src/layer -type f | wc -l || true
-          du -sh apps/throwtrash-web/backend/src/layer/nodejs
+          du -sh apps/throwtrash-web/backend/backend-dist
+          du -sh apps/throwtrash-web/backend/backend-dist/node_modules || true
+          du -sh apps/throwtrash-web/backend/layer || true
+          du -sh apps/throwtrash-web/backend/layer/nodejs/node_modules || true
+          find apps/throwtrash-web/backend/layer -type l | wc -l || true
+          find apps/throwtrash-web/backend/layer -type f | wc -l || true
+          du -sh apps/throwtrash-web/backend/layer/nodejs
           aws --version
           aws sts get-caller-identity
       - name: Module Deploy
@@ -170,25 +170,6 @@ jobs:
       - name: Deploy DB
         run: |
           aws cloudformation deploy --template-file apps/throwtrash-web/api/db-template.yml --stack-name throwtrash-mobile-db --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --region=${AWS_DEFAULT_REGION}
-      - name: Module Deploy Debug Info
-        run: |
-          pwd
-          ls -la
-          echo "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
-          echo "vars.AWS_DEFAULT_REGION=${{ vars.AWS_DEFAULT_REGION }}"
-          echo "ENV=${{ needs.set-stage.outputs.ENV }}"
-          echo "MOBILE_API_STAGE=${{ needs.set-stage.outputs.MOBILE_API_STAGE }}"
-          echo "BACKEND_STAGE=${{ needs.set-stage.outputs.BACKEND_STAGE }}"
-          echo "FRONTEND_STAGE=${{ needs.set-stage.outputs.FRONTEND_STAGE }}"
-          du -sh apps/throwtrash-web/api/src/api-dist
-          du -sh apps/throwtrash-web/api/src/api-dist/node_modules || true
-          du -sh apps/throwtrash-web/api/src/layer || true
-          du -sh apps/throwtrash-web/api/src/layer/nodejs/node_modules || true
-          find apps/throwtrash-web/api/src/layer -type l | wc -l || true
-          find apps/throwtrash-web/api/src/layer -type f | wc -l || true
-          du -sh apps/throwtrash-web/api/src/layer/nodejs
-          aws --version
-          aws sts get-caller-identity
       - name: Module Deploy
         run: |
             set -x

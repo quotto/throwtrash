@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../dist",                        /* Redirect output structure to the directory. */
+    "outDir": "../backend-dist",                        /* Redirect output structure to the directory. */
     "typeRoots": ["../node_modules/@types","types"],                                  /* Specify multiple folders that act like `./node_modules/@types`. */
   },
   "exclude": [
