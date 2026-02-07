@@ -96,7 +96,7 @@ module.exports = {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
     "^(\\.{1,2}/.*)\\.mjs$": "$1.mts",
-    "^trash-common$": "<rootDir>/__mocks__/trash-common.mock.ts"
+    "^trash-common$": "<rootDir>/src/__mocks__/trash-common.mock.ts"
   },
 
   // Run tests from one or more projects
@@ -130,7 +130,7 @@ module.exports = {
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
   setupFiles: [
-    "<rootDir>/jest.setup.ts"
+    "<rootDir>/src/jest.setup.ts"
   ],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
@@ -157,7 +157,11 @@ module.exports = {
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   testPathIgnorePatterns: [
     "\\\\node_modules\\\\",
-    "__tests__/trash-common\\.mock\\.(js|mts)$"
+    "src/__tests__/trash-common\\.mock\\.(js|mts)$",
+    "<rootDir>/api-dist"
+  ],
+  modulePathIgnorePatterns: [
+    "<rootDir>/api-dist"
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files

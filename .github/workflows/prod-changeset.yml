@@ -53,12 +53,12 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Set GCP Credentials
         run: |
-          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/src/serviceAccountKey.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/apps/throwtrash-web/backend/src/serviceAccountKey.json" >> $GITHUB_ENV
+          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/serviceAccountKey.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/apps/throwtrash-web/backend/serviceAccountKey.json" >> $GITHUB_ENV
       - name: Run tests and report coverage
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
-          working-directory: apps/throwtrash-web/backend/src
+          working-directory: apps/throwtrash-web/backend
   mobile-backend-test:
     permissions:
       checks: write
@@ -81,7 +81,7 @@ jobs:
       - name: Run tests and report coverage
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
-          working-directory: apps/throwtrash-web/api/src
+          working-directory: apps/throwtrash-web/api
   backend-changeset:
     needs: ["get-pr-number", "backend-test"]
     environment: prod
@@ -97,7 +97,7 @@ jobs:
         uses: ./.github/actions/backend/build
       - name: Set GCP Credentials
         run: |
-          echo ${{ secrets.GCP_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/src/backend-dist/serviceAccountKey.json
+          echo ${{ secrets.GCP_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/backend-dist/serviceAccountKey.json
       - name: Create Changeset for Backend DB
         run: |
           if aws cloudformation describe-stacks --stack-name throwtrash-backend-db --region=${{ vars.AWS_DEFAULT_REGION }} >/dev/null 2>&1; then

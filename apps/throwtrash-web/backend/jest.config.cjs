@@ -24,7 +24,7 @@ module.exports = {
   // collectCoverageFrom: undefined,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "__tests__/coverage",
+  coverageDirectory: "src/__tests__/coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
@@ -80,6 +80,7 @@ module.exports = {
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   modulePathIgnorePatterns: [
+    "src/__tests__/coverage",
     "<rootDir>/backend-dist"
   ],
 
@@ -95,8 +96,8 @@ module.exports = {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
     "^(\\.{1,2}/.*)\\.mjs$": "$1.mts",
-    "^\\.\\./dbadapter$": "<rootDir>/dbadapter.ts",
-    "^trash-common$": "<rootDir>/__mocks__/trash-common.mock.ts"
+    "^\\.\\./dbadapter$": "<rootDir>/src/dbadapter.ts",
+    "^trash-common$": "<rootDir>/src/__mocks__/trash-common.mock.ts"
   },
 
   // Run tests from one or more projects
@@ -130,7 +131,7 @@ module.exports = {
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
   setupFiles: [
-    "<rootDir>/jest.setup.ts"
+    "<rootDir>/src/jest.setup.ts"
   ],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
@@ -158,8 +159,8 @@ module.exports = {
   testPathIgnorePatterns: [
     "\\\\node_modules\\\\",
     "test\\.js",
-    "__tests__/coverage",
-    "__tests__/trash-common\\.mock\\.(js|mts)$",
+    "src/__tests__/coverage",
+    "src/__tests__/trash-common\\.mock\\.(js|mts)$",
     "<rootDir>/backend-dist"
   ],
 

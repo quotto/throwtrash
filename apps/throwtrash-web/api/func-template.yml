@@ -63,7 +63,7 @@ Resources:
   FunctionLayer:
     Type: "AWS::Serverless::LayerVersion"
     Properties:
-      ContentUri: ./src/layer
+      ContentUri: ./layer
       LayerName: !Sub "throwtrash-mobile-layer-${Stage}"
       CompatibleRuntimes:
         - nodejs22.x
@@ -71,7 +71,7 @@ Resources:
     Type: "AWS::Serverless::Function"
     DeletionPolicy: Retain
     Properties:
-      CodeUri: ./src/api-dist
+      CodeUri: ./api-dist
       FunctionName: !Sub "throwtrash-mobile-${Stage}"
       Handler: index.handler
       Role: !GetAtt LambdaExecRole.Arn
