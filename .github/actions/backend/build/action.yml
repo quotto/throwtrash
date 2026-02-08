@@ -16,6 +16,7 @@ runs:
     - name: Build backend
       shell: bash
       run: |
+        pnpm --filter backend install
         pnpm --filter backend build
         pnpm --config.node-linker=hoisted --filter backend deploy --prod apps/throwtrash-web/backend/deploy
     - name: Prepare backend layer

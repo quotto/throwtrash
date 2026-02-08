@@ -15,6 +15,7 @@ runs:
     - name: Build
       shell: bash
       run: |
+        pnpm --filter api install
         pnpm --filter api build
         pnpm --config.node-linker=hoisted --filter api deploy --prod apps/throwtrash-web/api/deploy
     - name: Prepare mobile backend layer
