@@ -13,7 +13,8 @@ globals:
 parserOptions:
   ecmaVersion: 2022
   sourceType: module
-  project: "./tsconfig.json"
+  tsconfigRootDir: "."
+  project: "./tsconfig.eslint.json"
 ignorePatterns:
   - "backend-dist/**"
 rules:
