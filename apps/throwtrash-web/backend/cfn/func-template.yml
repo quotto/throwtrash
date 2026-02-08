@@ -91,7 +91,7 @@ Resources:
           RUNLEVEL: !Ref RunLevel
           GOOGLE_CLIENT_ID: !Ref GoogleClientID
           GOOGLE_CLIENT_SECRET: !Ref GoogleClientSecret
-          GOOGLE_APPLICATION_CREDENTIALS: "/var/task/serviceAccountKey.json"
+          GOOGLE_APPLICATION_CREDENTIALS: "/var/task/deploy/dist/serviceAccountKey.json"
           ALEXA_CLIENT_ID: !Ref AlexaClientID
           ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
           ALEXA_USER_CLIENT_ID: !Ref AlexaUserClientID
