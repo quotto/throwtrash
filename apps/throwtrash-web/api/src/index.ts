@@ -11,7 +11,7 @@ import migrationV2 from "./migration/v2.js"
 const logger = common.getLogger();
 process.env.RUNLEVEL === "INFO" ? logger.setLevel_INFO() : logger.setLevel_DEBUG();
 
-exports.handler = async function(event: AWSLambda.APIGatewayEvent,_context: AWSLambda.Context) {
+export const handler = async (event: AWSLambda.APIGatewayEvent,_context: AWSLambda.Context) => {
     logger.debug(JSON.stringify(event));
     if(event.resource === '/register') {
         // 新規登録処理

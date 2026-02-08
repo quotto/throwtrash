@@ -17,7 +17,7 @@ import AWSLambda from "aws-lambda";
 import request_authorization_code from "./request_authorization_code.js"
 import { extractSessionIdFromCookieHeader, getCookieHeader } from "./cookie.js"
 
-exports.handler = async function(event: AWSLambda.APIGatewayEvent ,context: AWSLambda.Context) {
+export const handler = async (event: AWSLambda.APIGatewayEvent ,context: AWSLambda.Context) => {
     logger.debug(JSON.stringify(event));
     logger.debug(JSON.stringify(context));
     let session: SessionItem | null | undefined = null;
@@ -27,7 +27,7 @@ exports.handler = async function(event: AWSLambda.APIGatewayEvent ,context: AWSL
     if(sessionId) {
         session = await db.getSession(sessionId);
         logger.debug("get session"+session);
-    }
+}
    if(event.resource === "/oauth_request")  {
        let new_session_flg = false;
        if(!session) {
