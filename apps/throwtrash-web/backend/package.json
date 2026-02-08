@@ -10,7 +10,7 @@
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
     "coverage": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --coverage",
-    "build": "tsc --build tsconfig.build.json && cp package.json backend-dist/package.json",
+    "build": "tsc --build tsconfig.build.json && cp package.json dist/package.json",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },

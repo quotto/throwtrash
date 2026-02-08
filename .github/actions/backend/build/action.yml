@@ -16,7 +16,7 @@ runs:
     - name: Build backend
       shell: bash
       run: |
-        pnpm --config.node-linker=hoisted --filter backend deploy --prod apps/throwtrash-web/backend/backend-dist
+        pnpm --config.node-linker=hoisted --filter backend deploy --prod apps/throwtrash-web/backend/deploy
     - name: Prepare backend layer
       shell: bash
       run: |
@@ -25,12 +25,12 @@ runs:
         layer_root="apps/throwtrash-web/backend/layer/nodejs"
         rm -rf "${layer_root}"
         mkdir -p "${layer_root}"
-        mv "apps/throwtrash-web/backend/backend-dist/node_modules" "${layer_root}/node_modules"
+        mv "apps/throwtrash-web/backend/deploy/node_modules" "${layer_root}/node_modules"
     - name: Archive backend
       uses: actions/upload-artifact@v4
       with:
         name: backend
-        path: apps/throwtrash-web/backend/backend-dist
+        path: apps/throwtrash-web/backend/deploy
         retention-days: 1
     - name: Archive backend layer
       uses: actions/upload-artifact@v4

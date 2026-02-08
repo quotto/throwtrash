@@ -97,7 +97,7 @@ jobs:
         uses: ./.github/actions/backend/build
       - name: Set GCP Credentials
         run: |
-          echo ${{ secrets.GCP_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/backend-dist/serviceAccountKey.json
+          echo ${{ secrets.GCP_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/deploy/dist/serviceAccountKey.json
       - name: Create Changeset for Backend DB
         run: |
           if aws cloudformation describe-stacks --stack-name throwtrash-backend-db --region=${{ vars.AWS_DEFAULT_REGION }} >/dev/null 2>&1; then

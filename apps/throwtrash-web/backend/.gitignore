@@ -1,0 +1,9 @@
+deploy/
+dist/
+node_modules/
+certs
+config.json
+serviceAccountKey.json
+layer
+cfn/package-template.yml
+src/__tests__/coverage

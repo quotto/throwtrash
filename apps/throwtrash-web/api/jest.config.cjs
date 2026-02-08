@@ -158,10 +158,10 @@ module.exports = {
   testPathIgnorePatterns: [
     "\\\\node_modules\\\\",
     "src/__tests__/trash-common\\.mock\\.(js|mts)$",
-    "<rootDir>/api-dist"
+    "<rootDir>/dist"
   ],
   modulePathIgnorePatterns: [
-    "<rootDir>/api-dist"
+    "<rootDir>/dist"
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files

@@ -16,7 +16,7 @@ parserOptions:
   tsconfigRootDir: "."
   project: "./tsconfig.eslint.json"
 ignorePatterns:
-  - "backend-dist/**"
+  - "dist/**"
 rules:
   no-unused-vars:
     - 2

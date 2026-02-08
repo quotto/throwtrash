@@ -16,8 +16,8 @@ parserOptions:
   tsconfigRootDir: "."
   project: "./tsconfig.eslint.json"
 ignorePatterns:
-  - "api-dist/**"
-rules: 
+  - "dist/**"
+rules:
   no-unused-vars: "off"
   "@typescript-eslint/no-unused-vars": "off"
   "@typescript-eslint/no-explicit-any": "off"

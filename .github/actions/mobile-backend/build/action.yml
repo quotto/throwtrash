@@ -15,7 +15,8 @@ runs:
     - name: Build
       shell: bash
       run: |
-        pnpm --config.node-linker=hoisted --filter api deploy --prod apps/throwtrash-web/api/api-dist
+        pnpm --filter api build
+        pnpm --config.node-linker=hoisted --filter api deploy --prod apps/throwtrash-web/api/deploy
     - name: Prepare mobile backend layer
       shell: bash
       run: |
@@ -24,12 +25,12 @@ runs:
         layer_root="apps/throwtrash-web/api/layer/nodejs"
         rm -rf "${layer_root}"
         mkdir -p "${layer_root}"
-        mv "apps/throwtrash-web/api/api-dist/node_modules" "${layer_root}/node_modules"
+        mv "apps/throwtrash-web/api/deploy/node_modules" "${layer_root}/node_modules"
     - name: Archive Module
       uses: actions/upload-artifact@v4
       with:
         name: mobile-backend
-        path: apps/throwtrash-web/api/api-dist
+        path: apps/throwtrash-web/api/deploy
         retention-days: 1
     - name: Archive Layer
       uses: actions/upload-artifact@v4

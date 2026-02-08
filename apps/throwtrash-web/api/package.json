@@ -12,6 +12,10 @@
   },
   "author": "",
   "license": "ISC",
+  "files": [
+    "dist/**/*",
+    "package.json"
+  ],
   "devDependencies": {
     "@aws-sdk/credential-providers": "^3.956.0",
     "@jest/globals": "^28.1.3",

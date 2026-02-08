@@ -78,9 +78,9 @@ Resources:
     Type: "AWS::Serverless::Function"
     DeletionPolicy: Retain
     Properties:
-      CodeUri: ../backend-dist
+      CodeUri: ../deploy
       FunctionName: !Sub "throwtrash-backend-${Stage}"
-      Handler: index.handler
+      Handler: dist/index.handler
       Role: !GetAtt  LambdaExecRole.Arn
       Runtime: nodejs22.x
       Timeout: 30
