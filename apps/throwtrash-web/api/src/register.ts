@@ -22,7 +22,8 @@ export default async (event_body_str: string) => {
     const timestamp = new Date().getTime();
     const registeredItem = {
         id: id,
-        description: JSON.stringify({ trashData: [], globalExcludes: [] }),
+        description: JSON.stringify([]),
+        globalExcludes: [],
         platform: event_body.platform
     }
 

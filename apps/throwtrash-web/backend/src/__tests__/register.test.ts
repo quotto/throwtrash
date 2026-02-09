@@ -59,8 +59,9 @@ describe("register", () => {
     expect(mockScheduleResult["id001"].id).toBe("id001");
     expect(mockScheduleResult["id001"].platform).toBe("amazon");
     expect(mockScheduleResult["id001"].description).toBe(
-      JSON.stringify({ trashData: [{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }], globalExcludes: [] }, null, 2)
+      JSON.stringify([{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }])
     );
+    expect(mockScheduleResult["id001"].globalExcludes).toEqual([]);
     expect(mockScheduleResult["id001"].nextdayflag).toBeFalsy();
 
     const auth = mockAuthResult["12345"];
@@ -68,6 +69,19 @@ describe("register", () => {
     expect(auth.client_id).toBe("alexa-skill");
     expect(auth.redirect_uri).toBe("https://xxxx.com");
     expect(auth.expires_in).toBe(Math.ceil(todayMillis / 1000) + 300);
+  });
+
+  it("全体例外日が登録される", async () => {
+    mockDb.publishId.mockResolvedValueOnce("id010");
+    const response = await register(
+      {
+        data: [{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }],
+        globalExcludes: [{ month: 1, date: 2 }]
+      },
+      { id: "sessionid-009", redirect_uri: "https://xxxx.com", state: "state-value", client_id: "alexa-skill", platform: "amazon", expire: 9999999 }
+    );
+    expect(response.statusCode).toBe(200);
+    expect(mockScheduleResult["id010"].globalExcludes).toEqual([{ month: 1, date: 2 }]);
   });
 
   it("サインイン済み,id無し", async () => {
@@ -95,8 +109,9 @@ describe("register", () => {
     expect(mockScheduleResult["id001"].id).toBe("id001");
     expect(mockScheduleResult["id001"].platform).toBe("amazon");
     expect(mockScheduleResult["id001"].description).toBe(
-      JSON.stringify({ trashData: [{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }], globalExcludes: [] }, null, 2)
+      JSON.stringify([{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }])
     );
+    expect(mockScheduleResult["id001"].globalExcludes).toEqual([]);
     expect(mockScheduleResult["id001"].signinId).toBe("signinId002");
     expect(mockScheduleResult["id001"].signinService).toBe("google");
     expect(mockScheduleResult["id001"].nextdayflag).toBeFalsy();
@@ -134,8 +149,9 @@ describe("register", () => {
     expect(mockScheduleResult["id003"].id).toBe("id003");
     expect(mockScheduleResult["id003"].platform).toBe("amazon");
     expect(mockScheduleResult["id003"].description).toBe(
-      JSON.stringify({ trashData: [{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }], globalExcludes: [] }, null, 2)
+      JSON.stringify([{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }])
     );
+    expect(mockScheduleResult["id003"].globalExcludes).toEqual([]);
     expect(mockScheduleResult["id003"].signinId).toBe("signinId002");
     expect(mockScheduleResult["id003"].signinService).toBe("google");
     expect(mockScheduleResult["id003"].nextdayflag).toBeTruthy();

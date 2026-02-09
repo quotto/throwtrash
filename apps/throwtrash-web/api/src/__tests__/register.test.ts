@@ -53,7 +53,8 @@ describe("register",()=>{
 
         expect(mockedInsertTrashSchedule).toBeCalledWith(expect.objectContaining({
             id: expect.any(String),
-            description: JSON.stringify({ trashData: [], globalExcludes: [] }),
+            description: JSON.stringify([]),
+            globalExcludes: [],
             platform: "android",
         }), expect.any(Number));
     });

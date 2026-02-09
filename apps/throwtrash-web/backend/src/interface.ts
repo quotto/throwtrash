@@ -58,6 +58,7 @@ export interface SessionItem {
 export interface RawTrasScheduleItem {
     id: string,
     description: string,
+    globalExcludes?: ExcludeDate[],
     platform?: string,
     signinId?: string,
     signinService?: string,

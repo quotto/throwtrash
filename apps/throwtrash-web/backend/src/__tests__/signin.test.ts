@@ -4,10 +4,8 @@ import type { SessionItem } from "../interface";
 jest.setTimeout(100000);
 
 const mockResult: { [key: string]: SessionItem } = {};
-const mockData = [{
-  trashData: [{ type: "burn", schedules: [{ type: "weekday", value: "1" }] }],
-  globalExcludes: [{ month: 1, date: 1 }]
-}];
+const mockTrashData = [{ type: "burn", schedules: [{ type: "weekday", value: "1" }] }];
+const mockGlobalExcludes = [{ month: 1, date: 1 }];
 
 const mockDb = {
   getDataBySigninId: jest.fn(),
@@ -73,9 +71,9 @@ mockDb.getDataBySigninId.mockImplementation(async (signinId: string) => {
   if (signinId === "signinid-error") {
     throw new Error("Test Exception");
   } else if (signinId === "amazon-xxxxx") {
-    return { id: "id001", description: JSON.stringify(mockData[0], null, 2) };
+    return { id: "id001", description: JSON.stringify(mockTrashData), globalExcludes: mockGlobalExcludes };
   } else if (signinId === "google-xxxxx") {
-    return { id: "id002", description: JSON.stringify(mockData[0], null, 2) };
+    return { id: "id002", description: JSON.stringify(mockTrashData), globalExcludes: mockGlobalExcludes };
   }
   return {};
 });
@@ -99,8 +97,8 @@ describe("signin", () => {
     const session = mockResult["session-id001"];
     expect(session.userInfo).not.toBeUndefined();
     expect(session.userInfo!.id).toBe("id001");
-    expect(JSON.stringify(session.userInfo!.preset)).toBe(JSON.stringify(mockData[0].trashData));
-    expect(session.userInfo!.globalExcludes).toEqual(mockData[0].globalExcludes);
+    expect(JSON.stringify(session.userInfo!.preset)).toBe(JSON.stringify(mockTrashData));
+    expect(session.userInfo!.globalExcludes).toEqual(mockGlobalExcludes);
     expect(session.userInfo!.signinId).toBe("amazon-xxxxx");
     expect(session.userInfo!.name).toBe("テスト1");
     expect(session.userInfo!.signinService).toBe("amazon");
@@ -118,8 +116,8 @@ describe("signin", () => {
     const session = mockResult["session-id002"];
     expect(session.userInfo).not.toBeUndefined();
     expect(session.userInfo!.id).toBe("id002");
-    expect(JSON.stringify(session.userInfo!.preset)).toBe(JSON.stringify(mockData[0].trashData));
-    expect(session.userInfo!.globalExcludes).toEqual(mockData[0].globalExcludes);
+    expect(JSON.stringify(session.userInfo!.preset)).toBe(JSON.stringify(mockTrashData));
+    expect(session.userInfo!.globalExcludes).toEqual(mockGlobalExcludes);
     expect(session.userInfo!.signinId).toBe("google-xxxxx");
     expect(session.userInfo!.name).toBe("テスト1");
     expect(session.userInfo!.signinService).toBe("google");

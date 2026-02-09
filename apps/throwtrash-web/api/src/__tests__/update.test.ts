@@ -64,8 +64,9 @@ const mockSharedData001 = [
         ]
     }
 ];
-const mockSchedule001 = { trashData: mockData001, globalExcludes: [] };
-const mockSharedSchedule001 = { trashData: mockSharedData001, globalExcludes: [{ month: 1, date: 1 }] };
+const mockGlobalExcludes = [{ month: 1, date: 1 }];
+const mockSchedule001 = mockData001;
+const mockSharedSchedule001 = mockSharedData001;
 
 
 import update from "../update";
@@ -75,7 +76,8 @@ describe("update",()=>{
         jest.mocked(dbadapter.getTrashScheduleByUserId).mockImplementation(async(user_id: string)=>{
             return {
                 id: user_id,
-                description: JSON.stringify(mockSchedule001),
+                description: JSON.stringify(mockData001),
+                globalExcludes: mockGlobalExcludes,
                 platform: "android",
                 timestamp: 1234567
             }
@@ -94,19 +96,21 @@ describe("update",()=>{
         expect(jest.mocked(dbadapter.putExistTrashSchedule)).toBeCalledWith(expect.objectContaining({
             id: "id001",
             platform: "android",
-            description: JSON.stringify(mockSchedule001)
+            description: JSON.stringify(mockSchedule001),
+            globalExcludes: mockGlobalExcludes
         }),expect.any(Number));
     });
     it("globalExcludesが指定された場合でも更新できる",async()=>{
-        const scheduleWithGlobalExcludes = { trashData: mockData001, globalExcludes: [{ month: 1, date: 1 }, { month: 12, date: 31 }] };
-        const result = await update({ description: JSON.stringify(scheduleWithGlobalExcludes), platform: "android", id: "id001", timestamp: 1234567 }) as APIGatewayProxyStructuredResultV2;
+        const inputGlobalExcludes = [{ month: 1, date: 1 }, { month: 12, date: 31 }];
+        const result = await update({ description: JSON.stringify(mockSchedule001), platform: "android", id: "id001", timestamp: 1234567, globalExcludes: inputGlobalExcludes }) as APIGatewayProxyStructuredResultV2;
         const body = JSON.parse(result.body!);
         expect(result.statusCode).toBe(200);
         expect(body.timestamp).toBeGreaterThan(0);
         expect(jest.mocked(dbadapter.putExistTrashSchedule)).toBeCalledWith(expect.objectContaining({
             id: "id001",
             platform: "android",
-            description: JSON.stringify(scheduleWithGlobalExcludes)
+            description: JSON.stringify(mockSchedule001),
+            globalExcludes: inputGlobalExcludes
         }),expect.any(Number));
     });
     it("shared_idが設定されている場合の更新",async()=>{
@@ -116,6 +120,7 @@ describe("update",()=>{
                 shared_id: "share001",
                 description: JSON.stringify(mockSharedSchedule001),
                 platform: "android",
+                globalExcludes: mockGlobalExcludes,
                 timestamp: 1234567
             }
         })
@@ -126,7 +131,8 @@ describe("update",()=>{
         expect(jest.mocked(dbadapter.transactionUpdateScheduleAndSharedSchedule)).toBeCalledWith("share001",expect.objectContaining({
             description: JSON.stringify(mockSchedule001),
             platform: "android",
-            id: "id001"
+            id: "id001",
+            globalExcludes: mockGlobalExcludes
         }),expect.any(Number));
     });
     it("タイムスタンプが一致しない場合はユーザーエラー",async()=>{
@@ -149,9 +155,13 @@ describe("update",()=>{
     });
     it("globalExcludesが上限を超過している場合はユーザーエラー",async()=>{
         const overLimitExcludes = Array.from({ length: 11 }, (_, index) => ({ month: 1, date: index + 1 }));
-        const scheduleWithOverLimit = { trashData: mockData001, globalExcludes: overLimitExcludes };
-        const result = await update({id: "id001", description: JSON.stringify(scheduleWithOverLimit),
-        platform: "android",timestamp: 1234567}) as APIGatewayProxyStructuredResultV2;
+        const result = await update({
+            id: "id001",
+            description: JSON.stringify(mockSchedule001),
+            platform: "android",
+            timestamp: 1234567,
+            globalExcludes: overLimitExcludes
+        }) as APIGatewayProxyStructuredResultV2;
         expect(result.statusCode).toBe(400);
     });
     it("putExistTrashScheduleがエラーの場合はサーバーエラー",async()=>{
@@ -167,6 +177,7 @@ describe("update",()=>{
                 shared_id: "share001",
                 description: JSON.stringify(mockSharedSchedule001),
                 platform: "android",
+                globalExcludes: mockGlobalExcludes,
                 timestamp: 1234567
             }
         })

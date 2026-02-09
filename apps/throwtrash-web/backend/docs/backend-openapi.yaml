@@ -270,6 +270,7 @@ components:
             $ref: '#/components/schemas/TrashData'
         globalExcludes:
           type: array
+          description: 全体例外日（DBカラムとして保持）
           items:
             $ref: '#/components/schemas/ExcludeDate'
       required: [name, preset, globalExcludes]

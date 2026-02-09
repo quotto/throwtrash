@@ -241,8 +241,14 @@ components:
           type: string
         description:
           type: string
-          description: ゴミ出しスケジュール JSON（TrashScheduleDescription）
-          example: '{"trashData":[{"id":"1234567","type":"burn","trash_val":"","schedules":[{"type":"weekday","value":"0"}]}],"globalExcludes":[{"month":1,"date":1}]}'
+          description: ゴミ出しスケジュール JSON（TrashData[]）
+          example: '[{"id":"1234567","type":"burn","trash_val":"","schedules":[{"type":"weekday","value":"0"}]}]'
+        globalExcludes:
+          type: array
+          description: 全体例外日（最大10件）
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ExcludeDate'
         platform:
           type: string
         shared_id:
@@ -257,8 +263,14 @@ components:
           type: string
         description:
           type: string
-          description: ゴミ出しスケジュール JSON（TrashScheduleDescription）
-          example: '{"trashData":[{"id":"1234567","type":"burn","trash_val":"","schedules":[{"type":"weekday","value":"0"}]}],"globalExcludes":[{"month":1,"date":1}]}'
+          description: ゴミ出しスケジュール JSON（TrashData[]）
+          example: '[{"id":"1234567","type":"burn","trash_val":"","schedules":[{"type":"weekday","value":"0"}]}]'
+        globalExcludes:
+          type: array
+          description: 全体例外日（最大10件）
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ExcludeDate'
         platform:
           type: string
         shared_id:
@@ -266,20 +278,10 @@ components:
         timestamp:
           type: integer
     TrashScheduleDescription:
-      type: object
-      description: description フィールドに格納する JSON オブジェクト
-      properties:
-        trashData:
-          type: array
-          items:
-            $ref: '#/components/schemas/TrashData'
-        globalExcludes:
-          type: array
-          description: 全体例外日（最大10件）
-          maxItems: 10
-          items:
-            $ref: '#/components/schemas/ExcludeDate'
-      required: [trashData]
+      type: array
+      description: description フィールドに格納する JSON 配列（TrashData[]）
+      items:
+        $ref: '#/components/schemas/TrashData'
     ExcludeDate:
       type: object
       properties:

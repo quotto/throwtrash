@@ -125,7 +125,8 @@ export default async(body: any,session: SessionItem): Promise<BackendResponse>=>
             }
 
             // データ登録
-            item.description = JSON.stringify(regist_data, null, 2);
+            item.description = JSON.stringify(regist_data.trashData);
+            item.globalExcludes = regist_data.globalExcludes ?? [];
             item.platform  = session.platform;
             item.nextdayflag = (typeof(body.nextdayflag) != "undefined") && (body.nextdayflag != null) && body.nextdayflag;
             await db.putTrashSchedule(item, regist_data);

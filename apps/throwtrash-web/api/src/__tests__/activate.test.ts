@@ -4,38 +4,36 @@ import * as common from "trash-common"
 const logger = common.getLogger();
 logger.setLevel_DEBUG();
 
-const mockData001 = {
-    trashData: [
-        {
-            id: "1234567",
-            type: "burn",
-            trash_val: "",
-            schedules: [
-                {
-                    type: "weekday",
-                    value: "0"
-                },{
-                    type: "biweek",
-                    value: "1-1"
+const mockData001 = [
+    {
+        id: "1234567",
+        type: "burn",
+        trash_val: "",
+        schedules: [
+            {
+                type: "weekday",
+                value: "0"
+            },{
+                type: "biweek",
+                value: "1-1"
+            }
+        ]
+    },{
+        id: "8901234",
+        type: "other",
+        trash_val: "生ゴミ",
+        schedules: [
+            {
+                type: "evweek",
+                value: {
+                    weekday: "2",
+                    start: "2020-03-10"
                 }
-            ]
-        },{
-            id: "8901234",
-            type: "other",
-            trash_val: "生ゴミ",
-            schedules: [
-                {
-                    type: "evweek",
-                    value: {
-                        weekday: "2",
-                        start: "2020-03-10"
-                    }
-                }
-            ]
-        }
-    ],
-    globalExcludes: []
-};
+            }
+        ]
+    }
+];
+const mockGlobalExcludes = [{ month: 1, date: 1 }];
 
 jest.mock("../dbadapter");
 import dbadapter from "../dbadapter";
@@ -56,10 +54,11 @@ describe("activate_test",()=>{
             return {
                 shared_id: shared_id,
                 description: JSON.stringify(mockData001),
+                globalExcludes: mockGlobalExcludes,
                 timestamp: 123456
             }
         });
-        jest.mocked(dbadapter.updateTrashSchedule).mockImplementation(async(user_id: string, description: string, timestamp: number): Promise<boolean> => true);
+        jest.mocked(dbadapter.updateTrashSchedule).mockImplementation(async(user_id: string, description: string, timestamp: number, globalExcludes): Promise<boolean> => true);
         jest.mocked(dbadapter.deleteActivationCode).mockImplementation(async(code:string)=>true);
     });
     afterEach(()=>{
@@ -70,7 +69,7 @@ describe("activate_test",()=>{
         expect(jest.mocked(dbadapter.getActivationCode)).toBeCalledWith("code001");
         expect(jest.mocked(dbadapter.setSharedIdToTrashSchedule)).toBeCalledWith("id001", "share001");
         expect(jest.mocked(dbadapter.getSharedScheduleBySharedId)).toBeCalledWith("share001");
-        expect(jest.mocked(dbadapter.updateTrashSchedule)).toBeCalledWith("id001", JSON.stringify(mockData001), 123456);
+        expect(jest.mocked(dbadapter.updateTrashSchedule)).toBeCalledWith("id001", JSON.stringify(mockData001), 123456, mockGlobalExcludes);
         expect(result.statusCode).toBe(200);
         const body = JSON.parse(result.body!);
         expect(body.description).toBe(JSON.stringify(mockData001));
@@ -92,7 +91,7 @@ describe("activate_test",()=>{
         expect(result.statusCode).toBe(500);
     });
     it("TrashScheduleの更更新失敗した場合はサーバーエラー",async()=>{
-        jest.mocked(dbadapter.updateTrashSchedule).mockImplementationOnce(async(user_id: string, description: string, timestamp: number): Promise<boolean> => false);
+        jest.mocked(dbadapter.updateTrashSchedule).mockImplementationOnce(async(user_id: string, description: string, timestamp: number, globalExcludes): Promise<boolean> => false);
 
         const result = await activate({ code: "code001", user_id:"id001" }) as APIGatewayProxyStructuredResultV2;
         expect(jest.mocked(dbadapter.getActivationCode)).toBeCalled();

@@ -42,9 +42,23 @@ export class DynamoDBAdapter implements DBAdapter{
         return dynamoClient.send(new GetCommand(params)).then((data: GetCommandOutput) => {
             if (data.Item) {
                 const checkedNextday = typeof(data.Item.nextdayflag) != "undefined" ? data.Item.nextdayflag : true;
-                const parsed = JSON.parse(data.Item.description);
-                const trashData: TrashData[] = Array.isArray(parsed) ? parsed : parsed?.trashData ?? [];
-                const globalExcludes: ExcludeDate[] = Array.isArray(parsed?.globalExcludes) ? parsed.globalExcludes : [];
+                const description = data.Item.description;
+                let trashData: TrashData[] = [];
+                if (typeof description === "string") {
+                    try {
+                        const parsed = JSON.parse(description);
+                        if (Array.isArray(parsed)) {
+                            trashData = parsed;
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                } else if (Array.isArray(description)) {
+                    trashData = description;
+                }
+                const globalExcludes: ExcludeDate[] = Array.isArray(data.Item.globalExcludes)
+                    ? data.Item.globalExcludes
+                    : [];
                 return {
                     trashData: trashData,
                     checkedNextday: checkedNextday,

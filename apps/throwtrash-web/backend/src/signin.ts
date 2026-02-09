@@ -63,18 +63,18 @@ const requestGoogleProfile = (code: string): Promise<SigninProfile> =>{
     });
 }
 
-const parseScheduleDescription = (description: string): { preset: TrashData[], globalExcludes: ExcludeDate[] } => {
-    const parsed = JSON.parse(description);
-    if (Array.isArray(parsed)) {
-        return { preset: parsed, globalExcludes: [] };
+const parseScheduleDescription = (description: string, globalExcludes: ExcludeDate[] = []): { preset: TrashData[], globalExcludes: ExcludeDate[] } => {
+    if (typeof description === "string") {
+        try {
+            const parsed = JSON.parse(description);
+            if (Array.isArray(parsed)) {
+                return { preset: parsed, globalExcludes };
+            }
+        } catch (err) {
+            logger.error(err);
+        }
     }
-    if (parsed && Array.isArray(parsed.trashData)) {
-        return {
-            preset: parsed.trashData,
-            globalExcludes: Array.isArray(parsed.globalExcludes) ? parsed.globalExcludes : []
-        };
-    }
-    return { preset: [], globalExcludes: [] };
+    return { preset: [], globalExcludes };
 };
 
 export default async(params: any,session: SessionItem): Promise<BackendResponse> =>{
@@ -104,9 +104,12 @@ export default async(params: any,session: SessionItem): Promise<BackendResponse>
         };
         if ("id" in user_data) {
             session.userInfo.id = user_data.id;
-            const scheduleData = parseScheduleDescription(user_data.description);
-        session.userInfo.preset = scheduleData.preset;
-        session.userInfo.globalExcludes = scheduleData.globalExcludes;
+            const scheduleData = parseScheduleDescription(
+                user_data.description,
+                Array.isArray(user_data.globalExcludes) ? user_data.globalExcludes : []
+            );
+            session.userInfo.preset = scheduleData.preset;
+            session.userInfo.globalExcludes = scheduleData.globalExcludes;
         }
 
         if (await db.saveSession(session)) {

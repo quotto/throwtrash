@@ -3,6 +3,19 @@ import dbadapter from "./dbadapter.js"
 import { TrashScheduleItem } from "./interface.js"
 import { APIGatewayProxyEventQueryStringParameters, APIGatewayProxyResultV2 } from "aws-lambda";
 const logger = common.getLogger();
+
+const normalizeDescription = (description: string): string => {
+    try {
+        const parsed = JSON.parse(description);
+        if (Array.isArray(parsed)) {
+            return JSON.stringify(parsed);
+        }
+        return description;
+    } catch {
+        return description;
+    }
+};
+
 export default async(params: APIGatewayProxyEventQueryStringParameters): Promise<APIGatewayProxyResultV2>=> {
     logger.debug(`sync parameters: ${JSON.stringify(params)}`);
     if(params.user_id) {
@@ -23,7 +36,8 @@ export default async(params: APIGatewayProxyEventQueryStringParameters): Promise
                     logger.info("sync SharedSchedule to TrashSchedule");
                     logger.info(`SharedSchedule-> ${JSON.stringify(sharedSchedule)}`);
                     logger.info(`TrashSchedule-> ${JSON.stringify(trashScheduleItem)}`);
-                    trashScheduleItem.description = sharedSchedule?.description;
+                    trashScheduleItem.description = normalizeDescription(sharedSchedule?.description);
+                    trashScheduleItem.globalExcludes = Array.isArray(sharedSchedule.globalExcludes) ? sharedSchedule.globalExcludes : [];
                     trashScheduleItem.timestamp = sharedSchedule.timestamp;
 
                     syncResult = await dbadapter.putExistTrashSchedule(trashScheduleItem, sharedSchedule.timestamp);
@@ -31,6 +45,8 @@ export default async(params: APIGatewayProxyEventQueryStringParameters): Promise
                     logger.info("sync TrashSchedule to SharedSchedule ");
                     logger.info(`TrashSchedule-> ${JSON.stringify(trashScheduleItem)}`);
                     logger.info(`SharedSchedule-> ${JSON.stringify(sharedSchedule)}`);
+                    trashScheduleItem.description = normalizeDescription(trashScheduleItem.description);
+                    trashScheduleItem.globalExcludes = Array.isArray(trashScheduleItem.globalExcludes) ? trashScheduleItem.globalExcludes : [];
                     syncResult = await dbadapter.putSharedSchedule(sharedSchedule.shared_id, trashScheduleItem);
                 }
                 if(!syncResult) {

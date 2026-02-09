@@ -24,19 +24,23 @@ const toHash = (value: string): string => {
     return crypto.createHash("sha512").update(value).digest("hex");
 }
 
-const SharedSchedulePutOperation = (shared_id: string, description: string, timestamp: number): PutCommandInput => {
-   return {
+const SharedSchedulePutOperation = (shared_id: string, description: string, timestamp: number, globalExcludes: TrashScheduleItem["globalExcludes"]): PutCommandInput => {
+    const item: PutCommandInput = {
         TableName: property.SHARED_SCHEDULE_TABLE,
         Item: {
             shared_id: shared_id,
             description: description,
             timestamp: timestamp
         }
+    };
+    if (Array.isArray(globalExcludes)) {
+        (item.Item as Record<string, unknown>).globalExcludes = globalExcludes;
     }
+    return item;
 }
 
-const ExistTrashScheduleWithSharedIdPutOperation = (user_id: string, description: string, platform: string, timestamp: number, shared_id: string): PutCommandInput => {
-   return  {
+const ExistTrashScheduleWithSharedIdPutOperation = (user_id: string, description: string, platform: string, timestamp: number, shared_id: string, globalExcludes: TrashScheduleItem["globalExcludes"]): PutCommandInput => {
+    const item: PutCommandInput = {
         TableName: property.TRASH_SCHEDULE_TABLE,
         Item: {
             id: user_id,
@@ -46,7 +50,11 @@ const ExistTrashScheduleWithSharedIdPutOperation = (user_id: string, description
             shared_id: shared_id
         },
         ConditionExpression: "attribute_exists(id)"
+    };
+    if (Array.isArray(globalExcludes)) {
+        (item.Item as Record<string, unknown>).globalExcludes = globalExcludes;
     }
+    return item;
 }
 
 
@@ -111,6 +119,7 @@ const getTrashScheduleByUserId = async (user_id: string): Promise<TrashScheduleI
             return {
                 id: item.Item.id,
                 description: item.Item.description,
+                globalExcludes: item.Item.globalExcludes,
                 platform: item.Item.platform,
                 timestamp: item.Item.timestamp,
                 shared_id: item.Item.shared_id
@@ -143,13 +152,17 @@ const setSharedIdToTrashSchedule = async(user_id: string, shared_id: string): Pr
 }
 
 const putSharedSchedule = async(shared_id: string, schedule: TrashScheduleItem): Promise<boolean> => {
+    const item: Record<string, unknown> = {
+        shared_id: shared_id,
+        description: schedule.description,
+        timestamp: schedule.timestamp
+    };
+    if (Array.isArray(schedule.globalExcludes)) {
+        item.globalExcludes = schedule.globalExcludes;
+    }
     return documentClient.send(new PutCommand({
         TableName: property.SHARED_SCHEDULE_TABLE,
-        Item: {
-            shared_id: shared_id,
-            description: schedule.description,
-            timestamp: schedule.timestamp
-        }
+        Item: item
     })).then(_=>true).catch((err)=>{
         logger.error("failed put shared schedule");
         logger.error(err);
@@ -168,6 +181,7 @@ const getSharedScheduleBySharedId = async(shared_id: string): Promise<SharedSche
             return {
                shared_id: value.Item.shared_id ,
                description: value.Item.description,
+               globalExcludes: value.Item.globalExcludes,
                timestamp: value.Item.timestamp
             }
         }
@@ -231,14 +245,18 @@ const getActivationCode = async(code: string): Promise<ActivationCodeItem | null
 }
 
 const insertTrashSchedule = async(trashScheduleItem: TrashScheduleItem, timestamp: number): Promise<boolean> => {
+    const item: Record<string, unknown> = {
+        id: trashScheduleItem.id,
+        description: trashScheduleItem.description,
+        platform: trashScheduleItem.platform,
+        timestamp: timestamp
+    };
+    if (Array.isArray(trashScheduleItem.globalExcludes)) {
+        item.globalExcludes = trashScheduleItem.globalExcludes;
+    }
     return documentClient.send(new PutCommand({
         TableName: property.TRASH_SCHEDULE_TABLE,
-        Item: {
-            id: trashScheduleItem.id,
-            description: trashScheduleItem.description,
-            platform: trashScheduleItem.platform,
-            timestamp: timestamp
-        },
+        Item: item,
         ConditionExpression: "attribute_not_exists(id)"
     })).then(_=>{return true}).catch((e: any)=>{
        logger.error(e);
@@ -247,15 +265,19 @@ const insertTrashSchedule = async(trashScheduleItem: TrashScheduleItem, timestam
 }
 
 const putExistTrashSchedule = async(trashScheduleItem: TrashScheduleItem, timestamp: number): Promise<boolean> => {
+    const item: Record<string, unknown> = {
+        id: trashScheduleItem.id,
+        description: trashScheduleItem.description,
+        platform: trashScheduleItem.platform,
+        timestamp: timestamp,
+        shared_id: trashScheduleItem.shared_id
+    };
+    if (Array.isArray(trashScheduleItem.globalExcludes)) {
+        item.globalExcludes = trashScheduleItem.globalExcludes;
+    }
     return documentClient.send(new PutCommand({
         TableName: property.TRASH_SCHEDULE_TABLE,
-        Item: {
-            id: trashScheduleItem.id,
-            description: trashScheduleItem.description,
-            platform: trashScheduleItem.platform,
-            timestamp: timestamp,
-            shared_id: trashScheduleItem.shared_id
-        },
+        Item: item,
         ConditionExpression: "attribute_exists(id)"
     })).then(_=>{return true}).catch((e: any)=>{
        logger.error(e);
@@ -263,21 +285,29 @@ const putExistTrashSchedule = async(trashScheduleItem: TrashScheduleItem, timest
     });
 }
 
-const updateTrashSchedule = async(user_id: string, description: string, timestamp: number): Promise<boolean> =>{
+const updateTrashSchedule = async(user_id: string, description: string, timestamp: number, globalExcludes?: TrashScheduleItem["globalExcludes"]): Promise<boolean> =>{
+    const expressionAttributeNames: Record<string, string> = {
+        "#description": "description",
+        "#timestamp": "timestamp"
+    };
+    const expressionAttributeValues: Record<string, unknown> = {
+        ":description": description,
+        ":timestamp": timestamp
+    };
+    let updateExpression = "set #description = :description, #timestamp = :timestamp";
+    if (Array.isArray(globalExcludes)) {
+        expressionAttributeNames["#globalExcludes"] = "globalExcludes";
+        expressionAttributeValues[":globalExcludes"] = globalExcludes;
+        updateExpression += ", #globalExcludes = :globalExcludes";
+    }
     return documentClient.send(new UpdateCommand({
         TableName: property.TRASH_SCHEDULE_TABLE,
         Key: {
             id: user_id
         },
-        UpdateExpression: "set #description = :description, #timestamp = :timestamp",
-        ExpressionAttributeNames: {
-            "#description": "description",
-            "#timestamp": "timestamp"
-        },
-        ExpressionAttributeValues: {
-            ":description": description,
-            ":timestamp": timestamp
-        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
         ConditionExpression: "attribute_exists(id)"
     })).then(_=>true).catch((err)=> {
         logger.error("failed update trash schedule");
@@ -303,10 +333,10 @@ const transactionUpdateScheduleAndSharedSchedule = async(shared_id: string, sche
     return documentClient.send(new TransactWriteCommand({
         TransactItems: [
             {
-                Put: SharedSchedulePutOperation(shared_id, scheduleItem.description, timestamp),
+                Put: SharedSchedulePutOperation(shared_id, scheduleItem.description, timestamp, scheduleItem.globalExcludes),
             },
             {
-                Put: ExistTrashScheduleWithSharedIdPutOperation(scheduleItem.id, scheduleItem.description, scheduleItem.platform || "web", timestamp, shared_id)
+                Put: ExistTrashScheduleWithSharedIdPutOperation(scheduleItem.id, scheduleItem.description, scheduleItem.platform || "web", timestamp, shared_id, scheduleItem.globalExcludes)
             }
         ]
     })).then(_=> true).catch((err)=>{

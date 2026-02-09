@@ -16,7 +16,8 @@ describe("publish_activation_code",()=>{
             return {
                 id: user_id,
                 platform: "android",
-                description: JSON.stringify({})
+                description: JSON.stringify([]),
+                globalExcludes: [{ month: 1, date: 1 }]
             };
         });
 
@@ -35,7 +36,8 @@ describe("publish_activation_code",()=>{
             return {
                 id: user_id,
                 platform: "android",
-                description: JSON.stringify({})
+                description: JSON.stringify([]),
+                globalExcludes: [{ month: 1, date: 1 }]
             };
         });
         const result = await publish_activation_code({ user_id: "id001" }) as APIGatewayProxyStructuredResultV2;
@@ -43,8 +45,9 @@ describe("publish_activation_code",()=>{
         expect(jest.mocked(dbadapter.setSharedIdToTrashSchedule)).toBeCalledWith("id001", expect.any(String));
         expect(jest.mocked(dbadapter.putSharedSchedule)).toBeCalledWith(expect.any(String), expect.objectContaining({
             id: "id001",
-            description: JSON.stringify({}),
-            platform: "android"
+            description: JSON.stringify([]),
+            platform: "android",
+            globalExcludes: [{ month: 1, date: 1 }]
         }));
         expect(jest.mocked(dbadapter.putActivationCode)).toBeCalledWith(expect.objectContaining({
             code: expect.any(String),
@@ -62,7 +65,8 @@ describe("publish_activation_code",()=>{
                 id: user_id,
                 shared_id: "share001",
                 platform: "android",
-                description: JSON.stringify({})
+                description: JSON.stringify([]),
+                globalExcludes: [{ month: 1, date: 1 }]
             };
         });
         const result = await publish_activation_code({ user_id: "id001" }) as APIGatewayProxyStructuredResultV2;

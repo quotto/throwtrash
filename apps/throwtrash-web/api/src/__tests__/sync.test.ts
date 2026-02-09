@@ -67,6 +67,8 @@ const testSharedDescription = [
         ]
     }
 ]
+const testGlobalExcludes = [{ month: 1, date: 1 }];
+const testSharedGlobalExcludes = [{ month: 12, date: 31 }];
 describe("sync",()=>{
     beforeEach(()=>{
         jest.mocked(dbadapter.putExistTrashSchedule).mockImplementation(async(trashScheduleItem: TrashScheduleItem, timestamp: number)=>true);
@@ -80,6 +82,7 @@ describe("sync",()=>{
             return {
                 id: user_id,
                 description: JSON.stringify(testDescription),
+                globalExcludes: testGlobalExcludes,
                 platform: "android",
                 timestamp: 99999999
             }
@@ -93,6 +96,7 @@ describe("sync",()=>{
         expect(body.id).toBe("id001");
         expect(body.platform).toBe("android");
         expect(body.description).toBe(JSON.stringify(testDescription));
+        expect(body.globalExcludes).toEqual(testGlobalExcludes);
         expect(body.timestamp).toBe(99999999);
     });
     it("SharedTableScheduleのタイムスタンプが大きい場合はTrashScheduleを更新する",async()=>{
@@ -102,6 +106,7 @@ describe("sync",()=>{
                 description: JSON.stringify(testDescription),
                 shared_id: "share001",
                 platform: "android",
+                globalExcludes: testGlobalExcludes,
                 timestamp: 88888888
             }
         });
@@ -109,6 +114,7 @@ describe("sync",()=>{
             return {
                 shared_id: shared_id,
                 description: JSON.stringify(testSharedDescription),
+                globalExcludes: testSharedGlobalExcludes,
                 timestamp: 999999999
             }
         });
@@ -121,12 +127,14 @@ describe("sync",()=>{
             id: "id001",
             description: JSON.stringify(testSharedDescription),
             platform: "android",
+            globalExcludes: testSharedGlobalExcludes,
             timestamp: 999999999
         }),999999999);
         expect(result.statusCode).toBe(200);
         expect(body.id).toBe("id001");
         expect(body.platform).toBe("android");
         expect(body.description).toBe(JSON.stringify(testSharedDescription));
+        expect(body.globalExcludes).toEqual(testSharedGlobalExcludes);
         expect(body.timestamp).toBe(999999999);
     });
     it("SharedTableScheduleのタイムスタンプが同じ場合TrashScheduleを更新する",async()=>{
@@ -136,6 +144,7 @@ describe("sync",()=>{
                 description: JSON.stringify(testDescription),
                 shared_id: "share001",
                 platform: "android",
+                globalExcludes: testGlobalExcludes,
                 timestamp: 999999999
             }
         });
@@ -143,6 +152,7 @@ describe("sync",()=>{
             return {
                 shared_id: shared_id,
                 description: JSON.stringify(testSharedDescription),
+                globalExcludes: testSharedGlobalExcludes,
                 timestamp: 999999999
             }
         });
@@ -155,12 +165,14 @@ describe("sync",()=>{
             id: "id001",
             description: JSON.stringify(testSharedDescription),
             platform: "android",
+            globalExcludes: testSharedGlobalExcludes,
             timestamp: 999999999
         }),999999999);
         expect(result.statusCode).toBe(200);
         expect(body.id).toBe("id001");
         expect(body.platform).toBe("android");
         expect(body.description).toBe(JSON.stringify(testSharedDescription));
+        expect(body.globalExcludes).toEqual(testSharedGlobalExcludes);
         expect(body.timestamp).toBe(999999999);
     });
     it("TrashScheduleのtimestampがundefinedの場はSharedScheduleで更新する",async()=>{
@@ -176,6 +188,7 @@ describe("sync",()=>{
             return {
                 shared_id: shared_id,
                 description: JSON.stringify(testSharedDescription),
+                globalExcludes: testSharedGlobalExcludes,
                 timestamp: 999999999
             }
         });
@@ -188,12 +201,14 @@ describe("sync",()=>{
             id: "id001",
             description: JSON.stringify(testSharedDescription),
             platform: "android",
+            globalExcludes: testSharedGlobalExcludes,
             timestamp: 999999999
         }),999999999);
         expect(result.statusCode).toBe(200);
         expect(body.id).toBe("id001");
         expect(body.platform).toBe("android");
         expect(body.description).toBe(JSON.stringify(testSharedDescription));
+        expect(body.globalExcludes).toEqual(testSharedGlobalExcludes);
         expect(body.timestamp).toBe(999999999);
     });
     it("SharedTableScheduleのタイムスタンプが小さい場合はSharedScheduleをTrashScheduleで更新する",async()=>{
@@ -203,6 +218,7 @@ describe("sync",()=>{
                 description: JSON.stringify(testDescription),
                 shared_id: "share001",
                 platform: "android",
+                globalExcludes: testGlobalExcludes,
                 timestamp: 999999999
             }
         });
@@ -210,6 +226,7 @@ describe("sync",()=>{
             return {
                 shared_id: shared_id,
                 description: JSON.stringify(testSharedDescription),
+                globalExcludes: testSharedGlobalExcludes,
                 timestamp: 88888888
             }
         });
@@ -222,12 +239,14 @@ describe("sync",()=>{
             id: "id001",
             description: JSON.stringify(testDescription),
             platform: "android",
+            globalExcludes: testGlobalExcludes,
             timestamp: 999999999
         }));
         expect(result.statusCode).toBe(200);
         expect(body.id).toBe("id001");
         expect(body.platform).toBe("android");
         expect(body.description).toBe(JSON.stringify(testDescription));
+        expect(body.globalExcludes).toEqual(testGlobalExcludes);
         expect(body.timestamp).toBe(999999999);
     });
     it("パラメーにuser_idが無い場合はユーザーエラー",async()=>{
@@ -246,6 +265,7 @@ describe("sync",()=>{
                 description: JSON.stringify(testDescription),
                 shared_id: "share001",
                 platform: "android",
+                globalExcludes: testGlobalExcludes,
                 timestamp: 88888888
             }
         });

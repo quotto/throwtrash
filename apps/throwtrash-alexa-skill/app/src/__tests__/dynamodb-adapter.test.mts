@@ -76,6 +76,7 @@ describe("DynamoDBAdapter.getTrashSchedule", () => {
     it("スケジュールが存在する場合は内容を返す", async () => {
         const adapter = new DynamoDBAdapter();
         const schedule = [{ type: "burn", schedules: [{ type: "weekday", value: "1" }] }];
+        const globalExcludes = [{ month: 1, date: 1 }];
 
         ddbMock.on(GetCommand, {
             TableName: "TrashSchedule",
@@ -84,13 +85,14 @@ describe("DynamoDBAdapter.getTrashSchedule", () => {
             Item: {
                 description: JSON.stringify(schedule),
                 nextdayflag: false,
+                globalExcludes: globalExcludes,
             },
         });
 
         await expect(adapter.getTrashSchedule("user-123")).resolves.toEqual({
             trashData: schedule,
             checkedNextday: false,
-            globalExcludes: [],
+            globalExcludes: globalExcludes,
         });
     });
 

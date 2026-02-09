@@ -4,6 +4,18 @@ import dbadapter from "./dbadapter.js";
 
 const logger = common.getLogger();
 
+const normalizeDescription = (description: string): string => {
+  try {
+    const parsed = JSON.parse(description);
+    if (Array.isArray(parsed)) {
+      return JSON.stringify(parsed);
+    }
+    return description;
+  } catch {
+    return description;
+  }
+};
+
 export default async function activate(
   params: APIGatewayProxyEventQueryStringParameters
 ): Promise<APIGatewayProxyResultV2> {
@@ -31,10 +43,12 @@ export default async function activate(
     return { statusCode: 500 };
   }
 
+  const normalizedDescription = normalizeDescription(sharedSchedule.description);
   const updateTrashScheduleResult = dbadapter.updateTrashSchedule(
     params.user_id,
-    sharedSchedule.description,
-    sharedSchedule.timestamp
+    normalizedDescription,
+    sharedSchedule.timestamp,
+    sharedSchedule.globalExcludes
   );
   const deleteResult = dbadapter.deleteActivationCode(activationCode.code);
   const response = await Promise.all([updateTrashScheduleResult, deleteResult]);
@@ -47,7 +61,7 @@ export default async function activate(
   return {
     statusCode: 200,
     body: JSON.stringify({
-      description: sharedSchedule.description,
+      description: normalizedDescription,
       timestamp: sharedSchedule.timestamp,
     }),
   };

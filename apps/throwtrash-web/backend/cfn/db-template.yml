@@ -56,6 +56,7 @@ Resources:
           Projection:
             NonKeyAttributes:
               - "description"
+              - "globalExcludes"
               - "id"
               - "signinService"
             ProjectionType: "INCLUDE"

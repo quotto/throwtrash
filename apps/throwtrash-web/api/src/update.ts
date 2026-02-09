@@ -1,22 +1,49 @@
 import { APIGatewayProxyResultV2 } from "aws-lambda";
 import * as  common from "trash-common";
 import dbadapter from "./dbadapter.js"
-import type { TrashData } from "trash-common";
+import type { ExcludeDate, TrashData } from "trash-common";
 import { TrashScheduleItem } from "./interface.js"
 const logger = common.getLogger();
+
+const parseDescription = (description: string): { trashData: TrashData[]; globalExcludes: ExcludeDate[] } | null => {
+    try {
+        const parsed = JSON.parse(description);
+        if (Array.isArray(parsed)) {
+            return { trashData: parsed, globalExcludes: [] };
+        }
+        return null;
+    } catch (err) {
+        logger.error(String(err));
+        return null;
+    }
+};
 
 export default async (trashScheduleItem: TrashScheduleItem): Promise<APIGatewayProxyResultV2>=>{
     logger.info(`Update Data -> ${JSON.stringify(trashScheduleItem)}`);
 
     try {
-        const parsed = JSON.parse(trashScheduleItem.description);
-        const trashData: TrashData[] = Array.isArray(parsed) ? parsed : parsed?.trashData ?? [];
-        const globalExcludes = Array.isArray(parsed?.globalExcludes) ? parsed.globalExcludes : [];
+        const parsed = parseDescription(trashScheduleItem.description);
+        if (!parsed) {
+            logger.error(`invalid trash schedule: ${trashScheduleItem.description}`);
+            return {
+                statusCode: 400
+            }
+        }
+        const trashData = parsed.trashData;
+        const requestedGlobalExcludes = Array.isArray(trashScheduleItem.globalExcludes)
+            ? trashScheduleItem.globalExcludes
+            : parsed.globalExcludes.length > 0
+                ? parsed.globalExcludes
+                : undefined;
+        trashScheduleItem.description = JSON.stringify(trashData);
         // データチェックの結果に問題がなければ登録する
-        if (common.checkTrashes(trashData, globalExcludes)) {
+        const currentTrashSchedule = await dbadapter.getTrashScheduleByUserId(trashScheduleItem.id);
+        const effectiveGlobalExcludes = requestedGlobalExcludes
+            ?? (Array.isArray(currentTrashSchedule?.globalExcludes) ? currentTrashSchedule?.globalExcludes : []);
+        trashScheduleItem.globalExcludes = effectiveGlobalExcludes;
+        if (common.checkTrashes(trashData, effectiveGlobalExcludes)) {
             const timestamp = new Date().getTime()
             logger.debug(`update trash schedule -> ${JSON.stringify(trashScheduleItem)}`);
-            const currentTrashSchedule = await dbadapter.getTrashScheduleByUserId(trashScheduleItem.id);
             // リクエストパラメータのタイムスタンプと現在のDBタイムスタンプが一致しない場合はエラー
             if(currentTrashSchedule?.timestamp != trashScheduleItem.timestamp) {
                 logger.error(`invalid timestamp parameters: ${currentTrashSchedule?.timestamp}(remote) <-> ${trashScheduleItem.timestamp}(params)`);

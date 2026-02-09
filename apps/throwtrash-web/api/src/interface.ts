@@ -1,4 +1,4 @@
-import { TrashData } from "trash-common";
+import { ExcludeDate, TrashData } from "trash-common";
 
 export interface AccessTokenItem {
     expires_in: number,
@@ -52,6 +52,7 @@ export interface AccountLinkItem {
 export interface TrashScheduleItem {
     id: string,
     description: string,
+    globalExcludes?: ExcludeDate[],
     platform?: string,
     shared_id?: string,
     timestamp?: number
@@ -60,6 +61,7 @@ export interface TrashScheduleItem {
 export interface SharedScheduleItem {
     shared_id: string,
     description: string,
+    globalExcludes?: ExcludeDate[],
     timestamp: number
 }
 
