@@ -71,10 +71,17 @@ const parseScheduleDescription = (description: string, globalExcludes: ExcludeDa
                 return { preset: parsed, globalExcludes };
             }
         } catch (err) {
-            logger.error(err);
+            logger.error(String(err));
         }
     }
     return { preset: [], globalExcludes };
+};
+
+const isRawTrashScheduleItem = (value: RawTrasScheduleItem | {}): value is RawTrasScheduleItem => {
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+    return "id" in value && "description" in value && typeof (value as RawTrasScheduleItem).description === "string";
 };
 
 export default async(params: any,session: SessionItem): Promise<BackendResponse> =>{
@@ -102,7 +109,7 @@ export default async(params: any,session: SessionItem): Promise<BackendResponse>
             preset: [],
             globalExcludes: []
         };
-        if ("id" in user_data) {
+        if (isRawTrashScheduleItem(user_data)) {
             session.userInfo.id = user_data.id;
             const scheduleData = parseScheduleDescription(
                 user_data.description,
