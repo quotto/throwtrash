@@ -117,10 +117,18 @@ const getDataBySigninId = async(signinId: string): Promise<RawTrasScheduleItem |
         ExpressionAttributeNames: { "#i": "signinId" } ,
         ExpressionAttributeValues: { ":val": signinId },
         KeyConditionExpression: "#i = :val"
-    })).then((data)=>{
+    })).then(async (data)=>{
         if(data.Count && data.Count > 0) {
-            logger.debug("get data"+JSON.stringify(data.Items![0]));
-            return data.Items![0] as RawTrasScheduleItem;
+            const item = data.Items![0] as RawTrasScheduleItem;
+            logger.debug("get data"+JSON.stringify(item));
+            if (!Array.isArray(item.globalExcludes) && item.id) {
+                const fullItem = await documentClient.send(new GetCommand({
+                    TableName: property.SCHEDULE_TABLE,
+                    Key: { id: item.id }
+                }));
+                return fullItem.Item ? fullItem.Item as RawTrasScheduleItem : item;
+            }
+            return item;
         }
         return {};
     }).catch(err=>{

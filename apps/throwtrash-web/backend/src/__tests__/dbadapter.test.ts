@@ -92,6 +92,7 @@ describe("getDataBySigninId", () => {
     id: "test-001",
     description: JSON.stringify([{ type: "burn", schedules: [{ type: "weekday", value: "0" }] }]),
     signinId: "1111-1111-1111",
+    globalExcludes: [{ date: "2026-02-09", reason: "test" }],
   };
   beforeAll(async () => {
     await documentClient.send(
@@ -106,6 +107,7 @@ describe("getDataBySigninId", () => {
     expect(result.id).toBe(testdata.id);
     expect(result.signinId).toBe(testdata.signinId);
     expect(result.description).toBe(testdata.description);
+    expect(result.globalExcludes).toEqual(testdata.globalExcludes);
   });
   it("IDなし", async () => {
     const result = (await db.getDataBySigninId("xxxx-xxxx-xxxx")) as RawTrasScheduleItem;
