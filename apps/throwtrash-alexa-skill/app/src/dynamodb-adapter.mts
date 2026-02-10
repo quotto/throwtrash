@@ -56,9 +56,12 @@ export class DynamoDBAdapter implements DBAdapter{
                 } else if (Array.isArray(description)) {
                     trashData = description;
                 }
-                const globalExcludes: ExcludeDate[] = Array.isArray(data.Item.globalExcludes)
+                const rawGlobalExcludes = Array.isArray(data.Item.globalExcludes)
                     ? data.Item.globalExcludes
                     : [];
+                const globalExcludes: ExcludeDate[] = rawGlobalExcludes.filter(
+                    (exclude: ExcludeDate) => Number.isInteger(exclude?.month) && Number.isInteger(exclude?.date)
+                );
                 return {
                     trashData: trashData,
                     checkedNextday: checkedNextday,

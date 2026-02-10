@@ -96,6 +96,33 @@ describe("DynamoDBAdapter.getTrashSchedule", () => {
         });
     });
 
+    it("globalExcludesが不正な形式の場合は有効な値のみ返す", async () => {
+        const adapter = new DynamoDBAdapter();
+        const schedule = [{ type: "burn", schedules: [{ type: "weekday", value: "1" }] }];
+        const globalExcludes = [
+            { month: 1, date: 1 },
+            { month: "2", date: 2 },
+            { month: 3, date: null },
+        ];
+
+        ddbMock.on(GetCommand, {
+            TableName: "TrashSchedule",
+            Key: { id: "user-456" },
+        }).resolves({
+            Item: {
+                description: JSON.stringify(schedule),
+                nextdayflag: true,
+                globalExcludes: globalExcludes,
+            },
+        });
+
+        await expect(adapter.getTrashSchedule("user-456")).resolves.toEqual({
+            trashData: schedule,
+            checkedNextday: true,
+            globalExcludes: [{ month: 1, date: 1 }],
+        });
+    });
+
     it("スケジュールが存在しない場合は空データを返す", async () => {
         const adapter = new DynamoDBAdapter();
 

@@ -25,6 +25,14 @@ describe("Launch",()=>{
             if (_access_token === "testdata_with_checkedNextday_false") {
                 checkedNextday = false;
             }
+            if (_access_token === "testdata_with_no_trash") {
+                resolve({
+                    status: "success",
+                    response: [],
+                    checkedNextday: checkedNextday
+                });
+                return;
+            }
             resolve({
                 status: "sccess",
                 response: [
@@ -58,6 +66,16 @@ describe("Launch",()=>{
         expect(spyGetTrashData).toHaveBeenCalled()
         expect(response.prompt()).toBe(`<speak>今日出せるゴミは、カン、です。</speak>`);
         // supportedIntarfacesが無いのでdisplayは設定されない
+        expect(response.display()).toBeUndefined();
+    });
+    it("アクセストークン有りで起動-午前中-ゴミ無し", async()=>{
+        const request = alexa.request().launch()
+                            .set("request.locale", "ja-JP")
+                            .set("session.user.accessToken","testdata_with_no_trash")
+                            .set("context.System.application.applicationId", process.env.APP_ID)
+        const response = await request.send();
+        expect(spyGetTrashData).toHaveBeenCalled()
+        expect(response.prompt()).toBe(`<speak>今日出せるゴミはありません。</speak>`);
         expect(response.display()).toBeUndefined();
     });
     it("アクセストークン有りで起動-午後", async()=>{
