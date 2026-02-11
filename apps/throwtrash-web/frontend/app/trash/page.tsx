@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Box, Button, Stack, Typography } from '@mui/material';
@@ -109,14 +109,20 @@ export function TrashEditPageInner({ trashIndex }: { trashIndex: number }) {
     );
 }
 
-export default function TrashEditPage() {
+function TrashEditPageContent() {
     const params = useSearchParams();
     const trashIndex = Number(params.get('trashIndex') ?? -1);
 
+    return <TrashEditPageInner trashIndex={trashIndex} />;
+}
+
+export default function TrashEditPage() {
     return (
         <>
             <TopAppBarAdapter />
-            <TrashEditPageInner trashIndex={trashIndex} />
+            <Suspense fallback={<main>Loading...</main>}>
+                <TrashEditPageContent />
+            </Suspense>
         </>
     );
 }
