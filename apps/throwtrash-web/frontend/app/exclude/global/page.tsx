@@ -29,20 +29,25 @@ export function GlobalExcludePageInner() {
     const { t } = useTranslation();
     const { state: excludeState, dispatch: dispatchExclude } = useExcludeDate();
     const { state: trashState, dispatch: dispatchTrash } = useTrashForm();
-    const initializedRef = React.useRef(false);
+    const appliedGlobalRef = React.useRef<string | null>(null);
 
     React.useEffect(() => {
-        if (initializedRef.current) {
+        const nextExcludes =
+            trashState.globalExcludes.length > 0 ? trashState.globalExcludes : [initialExcludeDate];
+        const serialized = JSON.stringify(nextExcludes);
+        if (appliedGlobalRef.current === serialized) {
             return;
         }
-        initializedRef.current = true;
+        appliedGlobalRef.current = serialized;
         dispatchExclude({
             type: ExcludeAction.init,
             index: -1,
-            excludes: trashState.globalExcludes.length > 0 ? trashState.globalExcludes : [initialExcludeDate]
+            excludes: nextExcludes
         });
+    }, [trashState.globalExcludes, dispatchExclude]);
+    React.useEffect(() => {
         dispatchTrash({ type: TrashAction.resetGlobalExcludeSubmit });
-    }, [trashState.globalExcludes, dispatchExclude, dispatchTrash]);
+    }, [dispatchTrash]);
 
     const isSubmitted = trashState.is_global_excludes_submitted;
     const isError = trashState.is_global_excludes_error;

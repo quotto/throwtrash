@@ -118,10 +118,10 @@ const getDataBySigninId = async(signinId: string): Promise<RawTrasScheduleItem |
         ExpressionAttributeValues: { ":val": signinId },
         KeyConditionExpression: "#i = :val"
     })).then(async (data)=>{
-        if(data.Count && data.Count > 0) {
+        if (data.Count && data.Count > 0) {
             const item = data.Items![0] as RawTrasScheduleItem;
             logger.debug("get data"+JSON.stringify(item));
-            if (!Array.isArray(item.globalExcludes) && item.id) {
+            if (item.id) {
                 const fullItem = await documentClient.send(new GetCommand({
                     TableName: property.SCHEDULE_TABLE,
                     Key: { id: item.id }

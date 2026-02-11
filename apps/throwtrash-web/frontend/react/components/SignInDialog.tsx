@@ -26,11 +26,13 @@ export default function SignInDialog(props: Props) {
         (async () => {
             try {
                 const response = await getUserInfo();
-                if (response && response.preset) {
+                if (response) {
+                    const preset = Array.isArray(response.preset) ? response.preset : [];
+                    const globalExcludes = Array.isArray(response.globalExcludes) ? response.globalExcludes : [];
                     props.onSetUserInfo(
-                        { name: response.name },
-                        response.preset,
-                        response.globalExcludes ?? []
+                        { name: response.name ?? "" },
+                        preset,
+                        globalExcludes
                     );
                 }
             } catch {

@@ -70,7 +70,17 @@ jobs:
           pnpm --filter throwtrash-alexa-skill run test
       - name: build
         run: |
+          pnpm --filter throwtrash-alexa-skill run build
+      - name: deploy
+        run: |
           pnpm --config.node-linker=hoisted --filter throwtrash-alexa-skill deploy --prod apps/throwtrash-alexa-skill/app/dist
+      - name: fix-app-dist
+        run: |
+          app_root="apps/throwtrash-alexa-skill/app/dist"
+          if [ ! -f "${app_root}/index.mjs" ] && [ -f "${app_root}/dist/index.mjs" ]; then
+            cp -R "${app_root}/dist/." "${app_root}/"
+            rm -rf "${app_root}/dist"
+          fi
       - name: layer-install
         run: |
           layer_root="apps/throwtrash-alexa-skill/app/layer/nodejs"
