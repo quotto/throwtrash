@@ -157,6 +157,19 @@
                 }
             }
         },
+        "TrashList": {
+            "title": "Trash Types",
+            "button": {
+                "edit": "Edit",
+                "back": "Back to List"
+            }
+        },
+        "TrashEdit": {
+            "title": "Edit Trash Schedule",
+            "button": {
+                "save": "Save"
+            }
+        },
         "ExcludePage": {
             "global": {
                 "title": "Exclude Dates for All Trashes (Max 10)"

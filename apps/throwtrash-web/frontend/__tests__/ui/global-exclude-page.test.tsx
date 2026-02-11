@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Providers from '../../app/providers/StoreProvider';
 import { GlobalExcludePageInner } from '../../app/exclude/global/page';
 
+const pushMock = jest.fn();
+
 jest.mock('next/navigation', () => ({
-    useRouter: () => ({ back: jest.fn() })
+    useRouter: () => ({ back: jest.fn(), push: pushMock })
 }));
 
 describe('GlobalExcludePage', () => {
@@ -38,7 +40,7 @@ describe('GlobalExcludePage', () => {
         act(() => {
             submitButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
         });
-        expect(container.textContent).toContain('設定しました。');
+        expect(pushMock).toHaveBeenCalledWith('/');
 
         act(() => {
             root.unmount();

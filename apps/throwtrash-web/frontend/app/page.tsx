@@ -6,7 +6,7 @@ import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import '../react/lang/i18n';
 
 const TopAppBarAdapter = dynamicImport(() => import('./adapters/TopAppBarAdapter'), { ssr: false });
-const MainAdapter = dynamicImport(() => import('./adapters/MainAdapter'), { ssr: false });
+const TrashListAdapter = dynamicImport(() => import('./adapters/TrashListAdapter'), { ssr: false });
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export default function Page() {
             <CssBaseline />
             <main>
                 <TopAppBarAdapter />
-                <MainAdapter />
+                <TrashListAdapter />
             </main>
         </ThemeProvider>
     );

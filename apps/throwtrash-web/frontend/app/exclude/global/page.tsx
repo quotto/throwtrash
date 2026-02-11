@@ -19,6 +19,7 @@ import { useExcludeDate, useTrashForm } from '../../providers/StoreProvider';
 import { Action as ExcludeAction, initialExcludeDate } from '../../states/exclude-date';
 import { Action as TrashAction } from '../../states/trash-form';
 import { useTranslation } from 'react-i18next';
+import TopAppBarAdapter from '../../adapters/TopAppBarAdapter';
 import '../../../react/lang/i18n';
 
 export const dynamic = 'force-static';
@@ -50,11 +51,12 @@ export function GlobalExcludePageInner() {
             type: TrashAction.submitGlobalExclude,
             excludes: excludeState.excludes
         });
+        router.push('/');
     };
 
     const handleBack = () => {
         dispatchTrash({ type: TrashAction.resetGlobalExcludeSubmit });
-        router.back();
+        router.push('/');
     };
 
     return (
@@ -172,8 +174,11 @@ export function GlobalExcludePageInner() {
 
 export default function GlobalExcludePage() {
     return (
-        <Suspense fallback={<main>Loading...</main>}>
-            <GlobalExcludePageInner />
-        </Suspense>
+        <>
+            <TopAppBarAdapter />
+            <Suspense fallback={<main>Loading...</main>}>
+                <GlobalExcludePageInner />
+            </Suspense>
+        </>
     );
 }

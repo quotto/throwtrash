@@ -49,6 +49,11 @@ describe('trash-form reducer parity', () => {
         expect(s.trashes[0].schedules.length).toBe(1);
     });
 
+    test('deleteTrash keeps at least 1', () => {
+        const s = reducer(initialState, { type: Action.deleteTrash, index: 0 });
+        expect(s.trashes.length).toBe(1);
+    });
+
     test('inputTrashType validates', () => {
         const s = reducer(initialState, { type: Action.changeTrashKind, index: 0, kind: 'other' });
         const s2 = reducer(s, { type: Action.inputTrashType, index: 0, value: '', maxlength: 10 });

@@ -163,6 +163,19 @@
                 }
             }
         },
+        "TrashList": {
+            "title": "ゴミの種類一覧",
+            "button": {
+                "edit": "編集",
+                "back": "一覧へ戻る"
+            }
+        },
+        "TrashEdit": {
+            "title": "ゴミだしスケジュール編集",
+            "button": {
+                "save": "設定"
+            }
+        },
         "ExcludePage": {
             "global": {
                 "title": "全体の例外日設定（最大10件）"

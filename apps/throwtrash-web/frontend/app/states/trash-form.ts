@@ -134,6 +134,9 @@ export const reducer = (state: TrashFormState = initialState, action: TrashFormA
         return new_state;
     }
     case Action.deleteTrash: {
+        if (new_state.trashes.length <= 1) {
+            return new_state;
+        }
         new_state.trashes.splice(action.index, 1);
         new_state.error = exist_error(new_state.trashes);
         return new_state;
