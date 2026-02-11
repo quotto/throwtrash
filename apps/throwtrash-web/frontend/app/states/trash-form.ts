@@ -150,7 +150,11 @@ export const reducer = (state: TrashFormState = initialState, action: TrashFormA
             new_state.error = exist_error(new_state.trashes);
         }
         if (action.globalExcludes !== undefined) {
-            new_state.globalExcludes = cloneDeep(action.globalExcludes);
+            // 初回登録時の遅延 user_info 応答で空配列が返ってきても、
+            // すでに画面で入力済みの全体例外日は上書きしない。
+            if (!(action.globalExcludes.length === 0 && new_state.globalExcludes.length > 0)) {
+                new_state.globalExcludes = cloneDeep(action.globalExcludes);
+            }
         }
         return new_state;
     }

@@ -35,6 +35,19 @@ describe('trash-form reducer parity', () => {
         expect(s.globalExcludes).toEqual([{ month: 1, date: 1 }]);
     });
 
+    test('syncPreset does not overwrite local globalExcludes with empty response', () => {
+        const localEdited = reducer(initialState, {
+            type: Action.submitGlobalExclude,
+            excludes: [{ month: 3, date: 15 }]
+        });
+        const synced = reducer(localEdited, {
+            type: Action.syncPreset,
+            preset: [],
+            globalExcludes: []
+        });
+        expect(synced.globalExcludes).toEqual([{ month: 3, date: 15 }]);
+    });
+
     test('addSchedule caps at 3', () => {
         let s = reducer(initialState, { type: Action.addSchedule, trashIndex: 0 });
         s = reducer(s, { type: Action.addSchedule, trashIndex: 0 });
