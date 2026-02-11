@@ -29,14 +29,20 @@ export function GlobalExcludePageInner() {
     const { t } = useTranslation();
     const { state: excludeState, dispatch: dispatchExclude } = useExcludeDate();
     const { state: trashState, dispatch: dispatchTrash } = useTrashForm();
+    const initializedRef = React.useRef(false);
 
     React.useEffect(() => {
+        if (initializedRef.current) {
+            return;
+        }
+        initializedRef.current = true;
         dispatchExclude({
             type: ExcludeAction.init,
             index: -1,
             excludes: trashState.globalExcludes.length > 0 ? trashState.globalExcludes : [initialExcludeDate]
         });
-    }, [trashState.globalExcludes, dispatchExclude]);
+        dispatchTrash({ type: TrashAction.resetGlobalExcludeSubmit });
+    }, [trashState.globalExcludes, dispatchExclude, dispatchTrash]);
 
     const isSubmitted = trashState.is_global_excludes_submitted;
     const isError = trashState.is_global_excludes_error;
@@ -65,7 +71,15 @@ export function GlobalExcludePageInner() {
                 <Box textAlign="center" sx={{ fontSize: '1.5em' }}>
                     {t('ExcludePage.global.title')}
                 </Box>
-                <Box textAlign="center">
+                <Box
+                    textAlign="center"
+                    sx={{
+                        border: '1px solid #ddd',
+                        borderRadius: 2,
+                        p: 1.5,
+                        maxWidth: 520
+                    }}
+                >
                     <div>{t('ExcludePage.global.description1')}</div>
                     <div>{t('ExcludePage.global.description2')}</div>
                 </Box>
