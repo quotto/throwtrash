@@ -85,7 +85,7 @@
             "button":{
                 "delete": "Delete",
                 "exclude": "ExcludeDate",
-                "globalExclude": "Exclude Dates (All Trashes)",
+                "globalExclude": "Exclude Dates",
                 "add": "Add Schedule"
             },
             "globalExcludes": {
@@ -172,7 +172,9 @@
         },
         "ExcludePage": {
             "global": {
-                "title": "Exclude Dates for All Trashes (Max 10)"
+                "title": "Exclude Dates",
+                "description1": "All exclude dates apply to every trash type.",
+                "description2": "To set per-trash exclude dates, open each trash edit screen."
             }
         }
     }

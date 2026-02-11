@@ -65,6 +65,10 @@ export function GlobalExcludePageInner() {
                 <Box textAlign="center" sx={{ fontSize: '1.5em' }}>
                     {t('ExcludePage.global.title')}
                 </Box>
+                <Box textAlign="center">
+                    <div>{t('ExcludePage.global.description1')}</div>
+                    <div>{t('ExcludePage.global.description2')}</div>
+                </Box>
                 {excludeState.excludes.map((ex, idx) => {
                     const maxDate = monthDays(ex.month);
                     return (

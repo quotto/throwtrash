@@ -85,7 +85,7 @@
             "button":{
                 "delete": "削除",
                 "exclude": "例外日を設定",
-                "globalExclude": "全体の例外日を設定",
+                "globalExclude": "例外日の設定",
                 "add": "スケジュールを追加"
             },
             "globalExcludes": {
@@ -178,7 +178,9 @@
         },
         "ExcludePage": {
             "global": {
-                "title": "全体の例外日設定（最大10件）"
+                "title": "例外日の設定",
+                "description1": "設定した例外日は全てのゴミに適用される",
+                "description2": "ゴミの種類ごとに例外日を指定したい場合は各ゴミの編集画面から設定する"
             }
         }
     }

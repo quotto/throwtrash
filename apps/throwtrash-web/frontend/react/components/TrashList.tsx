@@ -41,18 +41,6 @@ export default function TrashList(props: TrashListProps) {
             <Box textAlign="center" mb={2}>
                 <Typography variant="h6">{t('TrashList.title')}</Typography>
             </Box>
-            <Box textAlign="center" mb={2}>
-                <Link href="/exclude/global" style={{ textDecoration: 'none' }}>
-                    <Button
-                        color="warning"
-                        variant="outlined"
-                        startIcon={<NotInterested />}
-                    >
-                        {t('TrashSchedule.button.globalExclude')}
-                    </Button>
-                </Link>
-                <GlobalExcludeSummary globalExcludes={props.globalExcludes} />
-            </Box>
             <Stack spacing={2} sx={{ width: '100%', maxWidth: 720, mx: 'auto' }}>
                 {props.trashes.map((trash, index) => (
                     <Box key={`trash-list-${index}`} sx={{ border: '1px solid #ddd', borderRadius: 2, p: 1.5 }}>
@@ -92,6 +80,16 @@ export default function TrashList(props: TrashListProps) {
                 >
                     {t('ScheduleList.button.addtrash')}
                 </Button>
+                <Link href="/exclude/global" style={{ textDecoration: 'none' }}>
+                    <Button
+                        color="warning"
+                        variant="outlined"
+                        startIcon={<NotInterested />}
+                    >
+                        {t('TrashSchedule.button.globalExclude')}
+                    </Button>
+                </Link>
+                <GlobalExcludeSummary globalExcludes={props.globalExcludes} />
                 <Tooltip
                     title={t('App.checkbox.description')}
                     placement="top"
