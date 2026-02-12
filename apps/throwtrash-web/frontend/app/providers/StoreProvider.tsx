@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { reducer as trashReducer, initialState as trashInitial } from '../states/trash-form';
+import { reducer as trashReducer, initialState as trashInitial, Action as TrashAction } from '../states/trash-form';
 import { reducer as submissionReducer, initialState as submissionInitial } from '../states/submission';
 import { reducer as authReducer, initialState as authInitial, Action as AuthAction } from '../states/auth';
 import { reducer as zipcodeReducer, initialState as zipcodeInitial, Action as ZipcodeAction } from '../states/zipcode';
@@ -25,11 +25,26 @@ export default function Providers({ children }: { children: ReactNode }) {
 
     // SSRでdehydrateされたauthを初期化
     const { data: authData } = useAuthQuery();
+    const syncedAuthRef = React.useRef<string | null>(null);
     React.useEffect(() => {
         if (authData && authData.name) {
+            const syncKey = JSON.stringify({
+                name: authData.name,
+                preset: Array.isArray(authData.preset) ? authData.preset : [],
+                globalExcludes: Array.isArray(authData.globalExcludes) ? authData.globalExcludes : []
+            });
+            if (syncedAuthRef.current === syncKey) {
+                return;
+            }
+            syncedAuthRef.current = syncKey;
             dispatchAuth({ type: AuthAction.setUser, user: { name: authData.name } });
+            dispatchTrash({
+                type: TrashAction.syncPreset,
+                preset: Array.isArray(authData.preset) ? authData.preset : [],
+                globalExcludes: Array.isArray(authData.globalExcludes) ? authData.globalExcludes : undefined
+            });
         }
-    }, [authData]);
+    }, [authData, dispatchTrash]);
 
     // zipcodeのSSRプリフェッチは行わずCSRのみ。react-query経由で検索。
     const zipcodeQuery = useZipcodeQuery(zipcodeState.zipcode, zipcodeState.submitting);

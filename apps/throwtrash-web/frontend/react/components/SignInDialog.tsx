@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DialogTitle, Button, Dialog, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { AppBarProps } from '../types/props';
-import { getUserInfo } from '../lib/api-client';
 import { apiBase } from '../lib/env';
 
 type Props = Pick<AppBarProps, 'signedIn' | 'signinDialog' | 'onSigninDialog' | 'onSetUserInfo' | 'onSignOut' | 'userInfo'>;
@@ -23,23 +22,6 @@ export default function SignInDialog(props: Props) {
     const { t } = useTranslation();
 
     useEffect(() => {
-        (async () => {
-            try {
-                const response = await getUserInfo();
-                if (response) {
-                    const preset = Array.isArray(response.preset) ? response.preset : [];
-                    const globalExcludes = Array.isArray(response.globalExcludes) ? response.globalExcludes : undefined;
-                    props.onSetUserInfo(
-                        { name: response.name ?? "" },
-                        preset,
-                        globalExcludes
-                    );
-                }
-            } catch {
-                // 未ログイン時は何もしない
-            }
-        })();
-
         if (typeof document !== 'undefined' && document.getElementById('amazon-root')) {
             window.onAmazonLoginReady = function () {
                 amazon.Login.setClientId('amzn1.application-oa2-client.8b1fd843af554c6891d9e48fc3c75be7');
