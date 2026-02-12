@@ -21,7 +21,7 @@ data "aws_caller_identity" "current" {}
 
 data "archive_file" "app_zip" {
   type        = "zip"
-  source_dir  = "${path.root}/app/dist"
+  source_dir  = "${path.root}/app/deploy"
   output_path = "${path.root}/app/app.zip"
   excludes = ["src","node_modules"]
 }
@@ -179,7 +179,7 @@ resource "aws_s3_bucket_ownership_controls" "RequestLogBucketOwnership" {
 resource "aws_lambda_function" "ThrowTrashSkill" {
   function_name = "ThrowTrashSkill"
   role          = aws_iam_role.LambdaExecRole.arn
-  handler       = "index.handler"
+  handler       = "dist/index.handler"
   runtime       = "nodejs22.x"
   source_code_hash = "${data.archive_file.app_zip.output_base64sha256}"
   filename = data.archive_file.app_zip.output_path

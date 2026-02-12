@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "files": [
+    "dist/**","package.json"
+  ],
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "build": "tsc -p tsconfig.build.json;cp -r src/resource dist/"
+    "build": "tsc -p tsconfig.build.json && cp -r src/resource dist/"
   },
   "author": "ty",
   "license": "ISC",
