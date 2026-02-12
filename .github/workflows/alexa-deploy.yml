@@ -77,7 +77,7 @@ jobs:
           layer_root="apps/throwtrash-alexa-skill/app/layer/nodejs"
           rm -rf "${layer_root}"
           mkdir -p "${layer_root}"
-          mv "apps/throwtrash-alexa-skill/app/dist/node_modules" "${layer_root}/node_modules"
+          mv "apps/throwtrash-alexa-skill/app/deploy/node_modules" "${layer_root}/node_modules"
       - uses: hashicorp/setup-terraform@v3
       - name: terraform-init
         working-directory: apps/throwtrash-alexa-skill
