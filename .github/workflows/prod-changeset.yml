@@ -1,4 +1,4 @@
-name: Production Create Changeset
+name: prod-changeset
 
 permissions:
   contents: read

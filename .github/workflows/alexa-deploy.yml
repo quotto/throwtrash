@@ -1,4 +1,4 @@
-name: deploy
+name: alexa-deploy
 on:
   push:
     branches-ignore:
