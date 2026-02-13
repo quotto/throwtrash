@@ -1,4 +1,5 @@
 name: dev-deploy
+# trigger: run with latest workspace link fix
 on:
   push:
     branches-ignore:
