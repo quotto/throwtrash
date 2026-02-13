@@ -14,7 +14,7 @@ runs:
       shell: bash
       run: |
         # static ディレクトリ自体は配置せず、それ以外を同期
-        aws s3 sync apps/throwtrash-web/frontend/out s3://${{ inputs.bucket }}/${{ inputs.frontend-stage }} \
+        aws s3 sync apps/frontend/out s3://${{ inputs.bucket }}/${{ inputs.frontend-stage }} \
           --exclude "static/*"
         # static 配下の中身のみを同一階層へ同期
-        aws s3 sync apps/throwtrash-web/frontend/out/static s3://${{ inputs.bucket }}/${{ inputs.frontend-stage }}
+        aws s3 sync apps/frontend/out/static s3://${{ inputs.bucket }}/${{ inputs.frontend-stage }}

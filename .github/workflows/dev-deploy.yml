@@ -5,7 +5,11 @@ on:
       - main
       - deploy
     paths:
-      - "apps/throwtrash-web/**"
+      - "apps/frontend/**"
+      - "apps/backend/**"
+      - "apps/mobile/**"
+      - "apps/throwtrash-web/infra/**"
+      - "apps/throwtrash-web/script/**"
       - "packages/trash-common/**"
       - ".github/**"
 permissions:
@@ -45,9 +49,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run frontend lint
-        run: pnpm --filter trashschedule-next run lint
+        run: pnpm --filter frontend run lint
       - name: Run frontend tests
-        run: pnpm --filter trashschedule-next run test
+        run: pnpm --filter frontend run test
   backend-test:
     environment: dev
     runs-on: ubuntu-latest
@@ -71,8 +75,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Set GCP Credentials
         run: |
-          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/serviceAccountKey.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/apps/throwtrash-web/backend/serviceAccountKey.json" >> $GITHUB_ENV
+          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/backend/serviceAccountKey.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/apps/backend/serviceAccountKey.json" >> $GITHUB_ENV
       - name: Run backend tests
         run: pnpm --filter backend run coverage --coverage
   mobile-backend-test:
@@ -91,7 +95,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run API tests
-        run: pnpm --filter api run test
+        run: pnpm --filter mobile run test
   frontend-deploy:
     needs: ["set-stage", "frontend-test"]
     environment: dev
@@ -126,17 +130,17 @@ jobs:
         uses: ./.github/actions/backend/build
       - name: Set GCP Credentials
         run: |
-          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/throwtrash-web/backend/deploy/dist/serviceAccountKey.json
+          echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/backend/deploy/dist/serviceAccountKey.json
       - name: Deploy DB
         run: |
-          aws cloudformation deploy --template-file apps/throwtrash-web/backend/cfn/db-template.yml --stack-name throwtrash-backend-db --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --region=${{ vars.AWS_DEFAULT_REGION }}
+          aws cloudformation deploy --template-file apps/backend/cfn/db-template.yml --stack-name throwtrash-backend-db --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --region=${{ vars.AWS_DEFAULT_REGION }}
       - name: Module Deploy
         run: |
             set -x
             # API/Lambdaのパッケージングとデプロイ
-            aws cloudformation package --template-file apps/throwtrash-web/backend/cfn/func-template.yml --output-template-file apps/throwtrash-web/backend/cfn/package-template.yml --s3-bucket lambda-function-deployment-${{ needs.set-stage.outputs.ENV }} --s3-prefix throwtrashbackend --debug
+            aws cloudformation package --template-file apps/backend/cfn/func-template.yml --output-template-file apps/backend/cfn/package-template.yml --s3-bucket lambda-function-deployment-${{ needs.set-stage.outputs.ENV }} --s3-prefix throwtrashbackend --debug
 
-            aws cloudformation deploy --template-file apps/throwtrash-web/backend/cfn/package-template.yml --stack-name throwtrash-backend-${{ needs.set-stage.outputs.BACKEND_STAGE }} --parameter-overrides Stage=${{ needs.set-stage.outputs.BACKEND_STAGE }} FrontendUrl=https://${{ vars.CF_DOMAIN_NAME }}/${{ needs.set-stage.outputs.FRONTEND_STAGE }} AuthorizationEndpoint=https://${{ vars.CF_DOMAIN_NAME }}/backend/${{ needs.set-stage.outputs.BACKEND_STAGE }} AlexaClientID=${{ secrets.ALEXA_CLIENT_ID }} AlexaClientSecret=${{ secrets.ALEXA_CLIENT_SECRET }} GoogleClientID=${{ secrets.GOOGLE_CLIENT_ID }} GoogleClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET }} RunLevel=${{ vars.RUNLEVEL }}  AlexaUserClientID=${{ secrets.ALEXA_USER_CLIENT_ID }} AlexaUserSecret=${{ secrets.ALEXA_USER_SECRET }} GoogleUserClientID=${{ secrets.GOOGLE_USER_CLIENT_ID }} GoogleUserSecret=${{ secrets.GOOGLE_USER_SECRET }} AlexaSkillID=${{ vars.ALEXA_APP_ID }} --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
+            aws cloudformation deploy --template-file apps/backend/cfn/package-template.yml --stack-name throwtrash-backend-${{ needs.set-stage.outputs.BACKEND_STAGE }} --parameter-overrides Stage=${{ needs.set-stage.outputs.BACKEND_STAGE }} FrontendUrl=https://${{ vars.CF_DOMAIN_NAME }}/${{ needs.set-stage.outputs.FRONTEND_STAGE }} AuthorizationEndpoint=https://${{ vars.CF_DOMAIN_NAME }}/backend/${{ needs.set-stage.outputs.BACKEND_STAGE }} AlexaClientID=${{ secrets.ALEXA_CLIENT_ID }} AlexaClientSecret=${{ secrets.ALEXA_CLIENT_SECRET }} GoogleClientID=${{ secrets.GOOGLE_CLIENT_ID }} GoogleClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET }} RunLevel=${{ vars.RUNLEVEL }}  AlexaUserClientID=${{ secrets.ALEXA_USER_CLIENT_ID }} AlexaUserSecret=${{ secrets.ALEXA_USER_SECRET }} GoogleUserClientID=${{ secrets.GOOGLE_USER_CLIENT_ID }} GoogleUserSecret=${{ secrets.GOOGLE_USER_SECRET }} AlexaSkillID=${{ vars.ALEXA_APP_ID }} --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
   mobile-backend-deploy:
     needs: ["mobile-backend-test","set-stage"]
     environment: dev
@@ -151,13 +155,13 @@ jobs:
       - uses: ./.github/actions/mobile-backend/build
       - name: Deploy DB
         run: |
-          aws cloudformation deploy --template-file apps/throwtrash-web/api/db-template.yml --stack-name throwtrash-mobile-db --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --region=${AWS_DEFAULT_REGION}
+          aws cloudformation deploy --template-file apps/mobile/db-template.yml --stack-name throwtrash-mobile-db --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --region=${AWS_DEFAULT_REGION}
       - name: Module Deploy
         run: |
             set -x
             # API/Lambdaのパッケージングとデプロイ
-            aws cloudformation package --template-file apps/throwtrash-web/api/func-template.yml --output-template-file apps/throwtrash-web/api/package-template.yml --s3-bucket lambda-function-deployment-${{ needs.set-stage.outputs.ENV }} --s3-prefix throwtrashapi --debug
-            aws cloudformation deploy --template-file apps/throwtrash-web/api/package-template.yml --stack-name throwtrash-mobile-${{ needs.set-stage.outputs.MOBILE_API_STAGE }} --parameter-overrides RunLevel=${{ vars.RUNLEVEL }} Stage=${{ needs.set-stage.outputs.MOBILE_API_STAGE }} SkillStage=${{ vars.SKILL_STAGE }} AlexaSkillID=${{ vars.ALEXA_APP_ID }} AlexaClientID=${{ secrets.ALEXA_CLIENT_ID }} AlexaClientSecret=${{ secrets.ALEXA_CLIENT_SECRET }} AlexaUserClientID=${{ secrets.ALEXA_USER_CLIENT_ID }} AuthorizationEndpoint=${{ vars.APP_URL }}/backend/${{ needs.set-stage.outputs.BACKEND_STAGE }} BackendApiKey=${{ secrets.BACKEND_API_KEY }} FrontendUrl=https://${{ vars.CF_DOMAIN_NAME }}/${{ needs.set-stage.outputs.FRONTEND_STAGE }} --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
+            aws cloudformation package --template-file apps/mobile/func-template.yml --output-template-file apps/mobile/package-template.yml --s3-bucket lambda-function-deployment-${{ needs.set-stage.outputs.ENV }} --s3-prefix throwtrashapi --debug
+            aws cloudformation deploy --template-file apps/mobile/package-template.yml --stack-name throwtrash-mobile-${{ needs.set-stage.outputs.MOBILE_API_STAGE }} --parameter-overrides RunLevel=${{ vars.RUNLEVEL }} Stage=${{ needs.set-stage.outputs.MOBILE_API_STAGE }} SkillStage=${{ vars.SKILL_STAGE }} AlexaSkillID=${{ vars.ALEXA_APP_ID }} AlexaClientID=${{ secrets.ALEXA_CLIENT_ID }} AlexaClientSecret=${{ secrets.ALEXA_CLIENT_SECRET }} AlexaUserClientID=${{ secrets.ALEXA_USER_CLIENT_ID }} AuthorizationEndpoint=${{ vars.APP_URL }}/backend/${{ needs.set-stage.outputs.BACKEND_STAGE }} BackendApiKey=${{ secrets.BACKEND_API_KEY }} FrontendUrl=https://${{ vars.CF_DOMAIN_NAME }}/${{ needs.set-stage.outputs.FRONTEND_STAGE }} --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-api-deploy-cfn-role --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
 
   cloudfront-deploy:
     needs: ["frontend-deploy", "backend-deploy", "mobile-backend-deploy"]

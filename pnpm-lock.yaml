@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  apps/throwtrash-alexa-skill/app:
+  apps/alexa/app:
     dependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.958.0
@@ -105,7 +105,7 @@ importers:
         specifier: ^0.7.8
         version: 0.7.8
 
-  apps/throwtrash-web/api:
+  apps/mobile:
     dependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.956.0
@@ -178,7 +178,7 @@ importers:
         specifier: ^4.7.4
         version: 4.9.5
 
-  apps/throwtrash-web/backend:
+  apps/backend:
     dependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.600.0
@@ -254,7 +254,7 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
-  apps/throwtrash-web/frontend:
+  apps/frontend:
     dependencies:
       '@emotion/react':
         specifier: ^11.13.3

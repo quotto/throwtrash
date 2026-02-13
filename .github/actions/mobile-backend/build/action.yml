@@ -15,27 +15,27 @@ runs:
     - name: Build
       shell: bash
       run: |
-        pnpm --filter api install
-        pnpm --filter api build
-        pnpm --config.node-linker=hoisted --filter api deploy --prod apps/throwtrash-web/api/deploy
+        pnpm --filter mobile install
+        pnpm --filter mobile build
+        pnpm --config.node-linker=hoisted --filter mobile deploy --prod apps/mobile/deploy
     - name: Prepare mobile backend layer
       shell: bash
       run: |
         set -euo pipefail
         # pnpm の symlink を避けるため hoisted の node_modules をレイヤーに移す
-        layer_root="apps/throwtrash-web/api/layer/nodejs"
+        layer_root="apps/mobile/layer/nodejs"
         rm -rf "${layer_root}"
         mkdir -p "${layer_root}"
-        mv "apps/throwtrash-web/api/deploy/node_modules" "${layer_root}/node_modules"
+        mv "apps/mobile/deploy/node_modules" "${layer_root}/node_modules"
     - name: Archive Module
       uses: actions/upload-artifact@v4
       with:
         name: mobile-backend
-        path: apps/throwtrash-web/api/deploy
+        path: apps/mobile/deploy
         retention-days: 1
     - name: Archive Layer
       uses: actions/upload-artifact@v4
       with:
         name: mobile-layer
-        path: apps/throwtrash-web/api/layer
+        path: apps/mobile/layer
         retention-days: 1

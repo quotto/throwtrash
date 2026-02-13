@@ -4,7 +4,7 @@ on:
     branches-ignore:
       - main
     paths:
-      - "apps/throwtrash-alexa-skill/**"
+      - "apps/alexa/**"
       - "packages/trash-common/**"
       - ".github/**"
   pull_request:
@@ -12,7 +12,7 @@ on:
       - deploy
     types: [opened, synchronize]
     paths:
-      - "apps/throwtrash-alexa-skill/**"
+      - "apps/alexa/**"
       - "packages/trash-common/**"
       - ".github/**"
 permissions:
@@ -67,20 +67,20 @@ jobs:
           mkdir -p ~/.ask
           echo "${{ secrets.ASK_CLI_CONFIG }}" > ~/.ask/cli_config
           export APP_ID=$APPID
-          pnpm --filter throwtrash-alexa-skill run test
+          pnpm --filter alexa run test
       - name: build
         run: |
-          pnpm --filter throwtrash-alexa-skill run build
-          pnpm --config.node-linker=hoisted --filter throwtrash-alexa-skill deploy --prod apps/throwtrash-alexa-skill/app/deploy
+          pnpm --filter alexa run build
+          pnpm --config.node-linker=hoisted --filter alexa deploy --prod apps/alexa/app/deploy
       - name: layer-install
         run: |
-          layer_root="apps/throwtrash-alexa-skill/app/layer/nodejs"
+          layer_root="apps/alexa/app/layer/nodejs"
           rm -rf "${layer_root}"
           mkdir -p "${layer_root}"
-          mv "apps/throwtrash-alexa-skill/app/deploy/node_modules" "${layer_root}/node_modules"
+          mv "apps/alexa/app/deploy/node_modules" "${layer_root}/node_modules"
       - uses: hashicorp/setup-terraform@v3
       - name: terraform-init
-        working-directory: apps/throwtrash-alexa-skill
+        working-directory: apps/alexa
         run: |
           # Terraformの初期化
           terraform init -backend-config="region=${{ vars.AWS_DEFAULT_REGION }}" -backend-config="bucket=throwtrash-tfstate-${{ needs.set-stage.outputs.STAGE }}"
@@ -93,11 +93,11 @@ jobs:
           echo "stage=\"${{ needs.set-stage.outputs.STAGE }}\"" >> terraform.tfvars
       - name: terraform-plan
         id: terraform-plan
-        working-directory: apps/throwtrash-alexa-skill
+        working-directory: apps/alexa
         run: |
           terraform plan -var-file=terraform.tfvars -no-color
       - name: terraform-apply
         if: github.event_name == 'push'
-        working-directory: apps/throwtrash-alexa-skill
+        working-directory: apps/alexa
         run: |
           terraform apply -auto-approve -var-file=terraform.tfvars

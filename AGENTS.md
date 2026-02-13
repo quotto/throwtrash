@@ -8,11 +8,11 @@
 - モノレポは pnpm 管理（apps/・packages/ 構成）。
 
 ## リポジトリ構成
-- apps/throwtrash-web/frontend/: Next.js フロントエンド
-- apps/throwtrash-web/backend/: サーバーサイド(TypeScript)
-- apps/throwtrash-web/api/: API サーバー(TypeScript)
+- apps/frontend/: Next.js フロントエンド
+- apps/backend/: サーバーサイド(TypeScript)
+- apps/mobile/: API サーバー(TypeScript)
 - apps/throwtrash-web/infra/cdk/: CloudFront/CDK 構成
-- apps/throwtrash-alexa-skill/app/: Alexa スキル(TypeScript)
+- apps/alexa/app/: Alexa スキル(TypeScript)
 - packages/trash-common/: 共通モジュール(TypeScript)
 - work/reports/: 調査・報告メモ
 - work/tasks/: 計画タスク一覧
@@ -86,16 +86,16 @@
 
 ## よく使うコマンド
 - 共通モジュール: `pnpm --filter trash-common run test` / `pnpm --filter trash-common run build`
-- フロントエンド: `pnpm --filter trashschedule-next run dev` / `pnpm --filter trashschedule-next run build` / `pnpm --filter trashschedule-next run lint` / `pnpm --filter trashschedule-next run test`
+- フロントエンド: `pnpm --filter frontend run dev` / `pnpm --filter frontend run build` / `pnpm --filter frontend run lint` / `pnpm --filter frontend run test`
 - バックエンド: `pnpm --filter backend run test` / `pnpm --filter backend run build`
-- API: `pnpm --filter api run test` / `pnpm --filter api run build`
-- Alexa: `pnpm --filter throwtrash-alexa-skill run test` / `pnpm --filter throwtrash-alexa-skill run build`
+- API: `pnpm --filter mobile run test` / `pnpm --filter mobile run build`
+- Alexa: `pnpm --filter alexa run test` / `pnpm --filter alexa run build`
 - インフラ(CDK): `cd apps/throwtrash-web/infra/cdk && npm ci && npx cdk deploy <stack> --context stage=<stage>`
 
 ## 参照すべきドキュメント
 - README.md
-- apps/throwtrash-web/frontend/md/manual.md
-- apps/throwtrash-web/frontend/md/policy.md
+- apps/frontend/md/manual.md
+- apps/frontend/md/policy.md
 - apps/throwtrash-web/infra/cdk/README.md
 
 ## エージェントの分割

@@ -4,7 +4,11 @@ on:
     branches:
     - deploy
     paths:
-      - "apps/throwtrash-web/**"
+      - "apps/frontend/**"
+      - "apps/backend/**"
+      - "apps/mobile/**"
+      - "apps/throwtrash-web/infra/**"
+      - "apps/throwtrash-web/script/**"
       - "packages/trash-common/**"
       - ".github/**"
 permissions:
