@@ -11,7 +11,7 @@
 - apps/frontend/: Next.js フロントエンド
 - apps/backend/: サーバーサイド(TypeScript)
 - apps/mobile/: API サーバー(TypeScript)
-- apps/throwtrash-web/infra/cdk/: CloudFront/CDK 構成
+- cloudfront/cdk/: CloudFront/CDK 構成
 - apps/alexa/app/: Alexa スキル(TypeScript)
 - packages/trash-common/: 共通モジュール(TypeScript)
 - work/reports/: 調査・報告メモ
@@ -90,13 +90,13 @@
 - バックエンド: `pnpm --filter backend run test` / `pnpm --filter backend run build`
 - API: `pnpm --filter mobile run test` / `pnpm --filter mobile run build`
 - Alexa: `pnpm --filter alexa run test` / `pnpm --filter alexa run build`
-- インフラ(CDK): `cd apps/throwtrash-web/infra/cdk && npm ci && npx cdk deploy <stack> --context stage=<stage>`
+- インフラ(CDK): `cd cloudfront/cdk && npm ci && npx cdk deploy <stack> --context stage=<stage>`
 
 ## 参照すべきドキュメント
 - README.md
 - apps/frontend/md/manual.md
 - apps/frontend/md/policy.md
-- apps/throwtrash-web/infra/cdk/README.md
+- cloudfront/cdk/README.md
 
 ## エージェントの分割
 - ユーザーからの要求が大規模な場合、複数のエージェントに分割して対応することを検討する。

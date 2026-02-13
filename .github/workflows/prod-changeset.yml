@@ -14,8 +14,7 @@ on:
      - "apps/frontend/**"
      - "apps/backend/**"
      - "apps/mobile/**"
-     - "apps/throwtrash-web/infra/**"
-     - "apps/throwtrash-web/script/**"
+     - "cloudfront/**"
      - "packages/trash-common/**"
      - ".github/**"
 
@@ -186,14 +185,14 @@ jobs:
           CF_FRONTEND_BUCKET: throwtrash
         run: |
           set +e
-          pnpm --filter throwtrash-cloudfront run diff -- --context stage=prod --no-color > apps/throwtrash-web/infra/cdk/cdk-diff.txt
+          pnpm --filter throwtrash-cloudfront run diff -- --context stage=prod --no-color > cloudfront/cdk/cdk-diff.txt
           echo "CDK_DIFF_EXIT_CODE=$?" >> $GITHUB_ENV
       - name: Add diff to PR comment
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const path = 'apps/throwtrash-web/infra/cdk/cdk-diff.txt';
+            const path = 'cloudfront/cdk/cdk-diff.txt';
             let body = '';
             if (fs.existsSync(path)) {
               body = fs.readFileSync(path, 'utf8');

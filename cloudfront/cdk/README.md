@@ -7,7 +7,7 @@ CloudFrontのPrimary Distributionを構築します（設定は環境変数/.env
 
 ## 実行例
 ```bash
-cd apps/throwtrash-web/infra/cdk
+cd cloudfront/cdk
 npm ci
 npx cdk deploy throwtrash-cloudfront-dev --context stage=dev
 ```

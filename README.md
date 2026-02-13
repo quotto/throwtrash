@@ -12,7 +12,7 @@ throwtrash の Web/Backend と Alexa スキル、共通モジュールをまと�
 - apps/alexa
   - app: Alexa スキル本体
   - main.tf: Terraform 構成
-- apps/throwtrash-web/infra
+- cloudfront
   - CloudFront/CDK 構成
 - packages/trash-common
   - 共通モジュール（旧 throwtrash-common-module）
@@ -54,7 +54,7 @@ GitHub Actions を利用します。各ワークフローは以下のパス変�
 - frontend: `apps/frontend/**`
 - backend: `apps/backend/**`
 - mobile: `apps/mobile/**`
-- infra: `apps/throwtrash-web/infra/**`
+- infra: `cloudfront/**`
 - alexa-skill: `apps/alexa/**`
 - common: `packages/trash-common/**`
 

@@ -8,8 +8,7 @@ on:
       - "apps/frontend/**"
       - "apps/backend/**"
       - "apps/mobile/**"
-      - "apps/throwtrash-web/infra/**"
-      - "apps/throwtrash-web/script/**"
+      - "cloudfront/**"
       - "packages/trash-common/**"
       - ".github/**"
 permissions:

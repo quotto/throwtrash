@@ -1,5 +1,6 @@
 packages:
   - 'apps/**'
+  - 'cloudfront/**'
   - 'packages/*'
   - '!apps/backend/dist/**'
   - '!apps/mobile/dist/**'
