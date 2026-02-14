@@ -13,6 +13,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  pull-requests: read
 
 jobs:
   get-pr-number:
@@ -99,7 +100,7 @@ jobs:
           cache: 'pnpm'
       - name: Install CDK dependencies
         run: pnpm --filter cloudfront install --frozen-lockfile
-      - name: Deploy CloudFront (primary)
+      - name: Deploy CloudFront
         env:
           CF_STAGE: prod
           CF_DOMAIN_NAME: ${{ vars.CF_DOMAIN_NAME }}
