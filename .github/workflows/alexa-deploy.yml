@@ -9,7 +9,7 @@ on:
       - ".github/**"
   pull_request:
     branches:
-      - deploy
+      - release
     types: [opened, synchronize]
     paths:
       - "apps/alexa/**"

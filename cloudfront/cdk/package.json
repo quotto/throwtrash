@@ -1,5 +1,5 @@
 {
-  "name": "throwtrash-cloudfront",
+  "name": "cloudfront",
   "version": "0.1.0",
   "private": true,
   "scripts": {
