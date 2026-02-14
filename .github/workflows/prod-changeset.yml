@@ -171,6 +171,7 @@ jobs:
       - name: Install CDK dependencies
         run: pnpm --filter cloudfront install --frozen-lockfile
       - name: Run CDK diff (CloudFront)
+        working-directory: cloudfront
         env:
           CF_STAGE: prod
           CF_DOMAIN_NAME: ${{ vars.CF_DOMAIN_NAME }}
@@ -181,7 +182,7 @@ jobs:
           CF_FRONTEND_BUCKET: throwtrash
         run: |
           set +e
-          pnpm --filter cloudfront run diff -- --context stage=prod --no-color > cloudfront/cdk/cdk-diff.txt
+          pnpm --filter cloudfront dlx cdk diff throwtrash-cloudfront-prod  --context stage=prod --no-color > cloudfront/cdk/cdk-diff.txt
           echo "CDK_DIFF_EXIT_CODE=$?" >> $GITHUB_ENV
       - name: Add diff to PR comment
         uses: actions/github-script@v7
