@@ -2,7 +2,7 @@ name: prod-deploy
 on:
   push:
     branches:
-    - release
+    - deploy
     paths:
       - "apps/frontend/**"
       - "apps/backend/**"
@@ -98,7 +98,7 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
       - name: Install CDK dependencies
-        run: pnpm --filter cloudfront install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Deploy CloudFront (primary)
         env:
           CF_STAGE: prod
@@ -109,7 +109,7 @@ jobs:
           CF_ALARM_API_DOMAIN: ${{ vars.CF_ALARM_API_DOMAIN }}
           CF_FRONTEND_BUCKET: throwtrash
         run: |
-          pnpm --filter cloudfront run deploy:prod
+          pnpm --filter throwtrash-cloudfront run deploy:prod
       - name: Invalidate CloudFront cache
         env:
           STACK_NAME: throwtrash-cloudfront-prod

@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: '22.x'
       - name: Install dependencies
-        run: pnpm --filter frontend install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Run frontend lint
         run: pnpm --filter frontend run lint
       - name: Run frontend tests
@@ -72,7 +72,7 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm --filter backend install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Set GCP Credentials
         run: |
           echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/backend/serviceAccountKey.json
@@ -93,7 +93,7 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm --filter mobile install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Run API tests
         run: pnpm --filter mobile run test
   frontend-deploy:
@@ -184,7 +184,7 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
       - name: Install CDK dependencies
-        run: pnpm --filter cloudfront install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Deploy CloudFront (primary)
         env:
           CF_STAGE: dev
@@ -195,7 +195,7 @@ jobs:
           CF_ALARM_API_DOMAIN: ${{ vars.CF_ALARM_API_DOMAIN }}
           CF_FRONTEND_BUCKET: throwtrash-dev
         run: |
-          pnpm --filter cloudfront run deploy:dev
+          pnpm --filter throwtrash-cloudfront run deploy:dev
       - name: Invalidate CloudFront cache
         env:
           STACK_NAME: throwtrash-cloudfront-dev
