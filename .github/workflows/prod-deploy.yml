@@ -2,7 +2,7 @@ name: prod-deploy
 on:
   push:
     branches:
-    - deploy
+    - release
     paths:
       - "apps/frontend/**"
       - "apps/backend/**"

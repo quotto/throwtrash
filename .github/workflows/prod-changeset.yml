@@ -9,7 +9,7 @@ on:
   pull_request:
    types: [opened, reopened, synchronize]
    branches:
-     - deploy
+     - release
    paths:
      - "apps/frontend/**"
      - "apps/backend/**"
