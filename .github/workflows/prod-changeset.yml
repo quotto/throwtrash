@@ -182,14 +182,14 @@ jobs:
           CF_FRONTEND_BUCKET: throwtrash
         run: |
           set +e
-          pnpm --filter cloudfront dlx cdk diff throwtrash-cloudfront-prod  --context stage=prod --no-color > cloudfront/cdk/cdk-diff.txt
+          pnpm --filter cloudfront dlx cdk diff throwtrash-cloudfront-prod  --context stage=prod --no-color > cdk/cdk-diff.txt
           echo "CDK_DIFF_EXIT_CODE=$?" >> $GITHUB_ENV
       - name: Add diff to PR comment
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const path = 'cloudfront/cdk/cdk-diff.txt';
+            const path = 'cdk/cdk-diff.txt';
             let body = '';
             if (fs.existsSync(path)) {
               body = fs.readFileSync(path, 'utf8');
