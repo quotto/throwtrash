@@ -57,10 +57,28 @@ jobs:
           aws-region: ${{ vars.AWS_DEFAULT_REGION }}
       - name: Backend DB ChangeSet Execute
         run: |
-          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-backend-db --region ${{ vars.AWS_DEFAULT_REGION }}
+          CHANGE_SET_NAME="deploy-${{ needs.get-pr-number.outputs.pr_number }}"
+          STACK_NAME="throwtrash-backend-db"
+          REGION="${{ vars.AWS_DEFAULT_REGION }}"
+          STATUS=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'Status' --output text --region "${REGION}")
+          if [ "${STATUS}" = "CREATE_COMPLETE" ]; then
+            aws cloudformation execute-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --region "${REGION}"
+          else
+            REASON=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'StatusReason' --output text --region "${REGION}")
+            echo "Skip execute change-set: stack=${STACK_NAME}, changeSet=${CHANGE_SET_NAME}, status=${STATUS}, reason=${REASON}"
+          fi
       - name: Backend ChangeSet Execute
         run: |
-          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-backend-${{ vars.BACKEND_STAGE }} --region ${{ vars.AWS_DEFAULT_REGION }}
+          CHANGE_SET_NAME="deploy-${{ needs.get-pr-number.outputs.pr_number }}"
+          STACK_NAME="throwtrash-backend-${{ vars.BACKEND_STAGE }}"
+          REGION="${{ vars.AWS_DEFAULT_REGION }}"
+          STATUS=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'Status' --output text --region "${REGION}")
+          if [ "${STATUS}" = "CREATE_COMPLETE" ]; then
+            aws cloudformation execute-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --region "${REGION}"
+          else
+            REASON=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'StatusReason' --output text --region "${REGION}")
+            echo "Skip execute change-set: stack=${STACK_NAME}, changeSet=${CHANGE_SET_NAME}, status=${STATUS}, reason=${REASON}"
+          fi
   mobile-backend-deploy:
     needs: ["get-pr-number"]
     environment: prod
@@ -73,10 +91,28 @@ jobs:
           aws-region: ${{ vars.AWS_DEFAULT_REGION }}
       - name: Mobile Backend DB ChangeSet Execute
         run: |
-          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-mobile-db --region ${{ vars.AWS_DEFAULT_REGION }}
+          CHANGE_SET_NAME="deploy-${{ needs.get-pr-number.outputs.pr_number }}"
+          STACK_NAME="throwtrash-mobile-db"
+          REGION="${{ vars.AWS_DEFAULT_REGION }}"
+          STATUS=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'Status' --output text --region "${REGION}")
+          if [ "${STATUS}" = "CREATE_COMPLETE" ]; then
+            aws cloudformation execute-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --region "${REGION}"
+          else
+            REASON=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'StatusReason' --output text --region "${REGION}")
+            echo "Skip execute change-set: stack=${STACK_NAME}, changeSet=${CHANGE_SET_NAME}, status=${STATUS}, reason=${REASON}"
+          fi
       - name: Mobile Backend ChangeSet Execute
         run: |
-          aws cloudformation execute-change-set --change-set-name deploy-${{ needs.get-pr-number.outputs.pr_number }} --stack-name throwtrash-mobile-${{ vars.MOBILE_API_STAGE }} --region ${{ vars.AWS_DEFAULT_REGION }}
+          CHANGE_SET_NAME="deploy-${{ needs.get-pr-number.outputs.pr_number }}"
+          STACK_NAME="throwtrash-mobile-${{ vars.MOBILE_API_STAGE }}"
+          REGION="${{ vars.AWS_DEFAULT_REGION }}"
+          STATUS=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'Status' --output text --region "${REGION}")
+          if [ "${STATUS}" = "CREATE_COMPLETE" ]; then
+            aws cloudformation execute-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --region "${REGION}"
+          else
+            REASON=$(aws cloudformation describe-change-set --change-set-name "${CHANGE_SET_NAME}" --stack-name "${STACK_NAME}" --query 'StatusReason' --output text --region "${REGION}")
+            echo "Skip execute change-set: stack=${STACK_NAME}, changeSet=${CHANGE_SET_NAME}, status=${STATUS}, reason=${REASON}"
+          fi
 
   cloudfront-deploy:
     needs: ["frontend-deploy", "backend-deploy", "mobile-backend-deploy"]
