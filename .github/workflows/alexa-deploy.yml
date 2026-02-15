@@ -60,7 +60,7 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm --filter alexa... install --frozen-lockfile
       - name: test
         if: github.event_name == 'push'
         run: |
@@ -71,7 +71,7 @@ jobs:
           pnpm --filter alexa run test
       - name: build
         run: |
-          pnpm --filter alexa run build
+          pnpm --filter alexa... run build
           pnpm --config.node-linker=hoisted --filter alexa deploy --prod apps/alexa/app/deploy
       - name: layer-install
         run: |

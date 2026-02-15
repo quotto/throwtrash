@@ -22,10 +22,10 @@ runs:
         cache: 'pnpm'
     - name: Install dependencies
       shell: bash
-      run: pnpm --filter frontend install --frozen-lockfile
+      run: pnpm --filter frontend... install --frozen-lockfile
     - name: Build frontend
       shell: bash
-      run: pnpm --filter frontend run build
+      run: pnpm --filter frontend... run build
       env:
         FRONTEND_STAGE: ${{ inputs.frontend-stage }}
         NEXT_PUBLIC_API_BASE: ${{ inputs.api-base }}

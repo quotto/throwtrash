@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: '22.x'
       - name: Install dependencies
-        run: pnpm --filter frontend install --frozen-lockfile
+        run: pnpm --filter frontend... install --frozen-lockfile
       - name: Run frontend lint
         run: pnpm --filter frontend run lint
       - name: Run frontend tests
@@ -72,7 +72,7 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm --filter backend install --frozen-lockfile
+        run: pnpm --filter backend... install --frozen-lockfile
       - name: Set GCP Credentials
         run: |
           echo ${{ secrets.GCP_TEST_CREDENTIALS }} | base64 -d > apps/backend/serviceAccountKey.json
@@ -93,7 +93,7 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm --filter mobile install --frozen-lockfile
+        run: pnpm --filter mobile... install --frozen-lockfile
       - name: Run API tests
         run: pnpm --filter mobile run test
   frontend-deploy:
