@@ -15,13 +15,6 @@ on:
       - "apps/alexa/**"
       - "packages/trash-common/**"
       - ".github/**"
-  push:
-    branches-ignore:
-      - main
-    paths:
-      - "apps/alexa/**"
-      - "packages/trash-common/**"
-      - ".github/**"
 permissions:
   id-token: write
   contents: read
