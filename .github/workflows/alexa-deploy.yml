@@ -61,6 +61,9 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm --filter alexa... install --frozen-lockfile
+      - name: build
+        run: |
+          pnpm --filter alexa... run build
       - name: test
         if: github.event_name == 'push'
         run: |
@@ -69,12 +72,9 @@ jobs:
           echo "${{ secrets.ASK_CLI_CONFIG }}" > ~/.ask/cli_config
           export APP_ID=$APPID
           pnpm --filter alexa run test
-      - name: build
-        run: |
-          pnpm --filter alexa... run build
-          pnpm --config.node-linker=hoisted --filter alexa deploy --prod apps/alexa/app/deploy
       - name: layer-install
         run: |
+          pnpm --config.node-linker=hoisted --filter alexa deploy --prod apps/alexa/app/deploy
           layer_root="apps/alexa/app/layer/nodejs"
           rm -rf "${layer_root}"
           mkdir -p "${layer_root}"
