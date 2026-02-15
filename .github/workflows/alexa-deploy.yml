@@ -1,5 +1,12 @@
 name: alexa-deploy
 on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - "apps/alexa/**"
+      - "packages/trash-common/**"
+      - ".github/**"
   pull_request:
     branches:
       - release
@@ -87,7 +94,16 @@ jobs:
       - name: Install dependencies
         run: pnpm --filter alexa... install --frozen-lockfile
       - name: build
-        run: pnpm --filter alexa... run build
+        run: |
+          pnpm --filter alexa... run build
+      - name: test
+        if: github.event_name == 'push'
+        run: |
+          sudo npm install -g ask-cli@2.1.1 --unsafe-perm
+          mkdir -p ~/.ask
+          echo "${{ secrets.ASK_CLI_CONFIG }}" > ~/.ask/cli_config
+          export APP_ID=$APPID
+          pnpm --filter alexa run test
       - name: layer-install
         run: |
           pnpm --config.node-linker=hoisted --filter alexa deploy --prod apps/alexa/app/deploy
