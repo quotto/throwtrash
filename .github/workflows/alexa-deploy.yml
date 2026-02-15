@@ -9,8 +9,8 @@ on:
       - "packages/trash-common/**"
       - ".github/**"
   push:
-    branches:
-      - release
+    branches-ignore:
+      - main
     paths:
       - "apps/alexa/**"
       - "packages/trash-common/**"
@@ -45,11 +45,26 @@ jobs:
           echo "${{ secrets.ASK_CLI_CONFIG }}" > ~/.ask/cli_config
           export APP_ID=$APPID
           pnpm --filter alexa run test
-  deploy-release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/release'
+  set-stage:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      stage: ${{ steps.set-stage.outputs.stage }}
+    steps:
+      - name: Set stage
+        id: set-stage
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/deploy" ] || [ "${{ github.ref }}" = "refs/heads/release" ]; then
+            echo "stage=prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "stage=dev" >> "$GITHUB_OUTPUT"
+          fi
+  deploy:
+    if: github.event_name == 'push'
     needs:
       - test
-    environment: prod
+      - set-stage
+    environment: ${{ needs.set-stage.outputs.stage }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -85,20 +100,33 @@ jobs:
         working-directory: apps/alexa
         run: |
           # Terraformの初期化
-          terraform init -backend-config="region=${{ vars.AWS_DEFAULT_REGION }}" -backend-config="bucket=throwtrash-tfstate-prod"
+          terraform init -backend-config="region=${{ vars.AWS_DEFAULT_REGION }}" -backend-config="bucket=throwtrash-tfstate-${{ needs.set-stage.outputs.stage }}"
           # TFVARファイルを作成
           echo "AppID=\"${{ vars.ALEXA_APP_ID }}\"" >> terraform.tfvars
           echo "ApiUrl=\"${{ vars.MECAB_API_URL }}\"" >> terraform.tfvars
           echo "ApiKey=\"${{ secrets.MECAB_API_KEY }}\"" >> terraform.tfvars
           echo "ReminderProductID=\"${{ vars.REMINDER_PRODUCT_ID }}\"" >> terraform.tfvars
           echo "RunLevel=\"${{ vars.RUNLEVEL }}\"" >> terraform.tfvars
-          echo "stage=\"prod\"" >> terraform.tfvars
+          echo "stage=\"${{ needs.set-stage.outputs.stage }}\"" >> terraform.tfvars
       - name: terraform-plan
         working-directory: apps/alexa
         run: terraform plan -var-file=terraform.tfvars -no-color
       - name: terraform-apply
         working-directory: apps/alexa
         run: terraform apply -auto-approve -var-file=terraform.tfvars
+  release-versioning:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/release'
+    needs:
+      - deploy
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-skill-deploy-role
+          role-session-name: GitHubActions
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
       - name: Publish Lambda version
         id: versioning
         run: |
