@@ -17,7 +17,7 @@ runs:
       run: |
         pnpm --filter mobile... install --frozen-lockfile
         pnpm --filter mobile... build
-        pnpm --config.node-linker=hoisted --filter mobile... deploy --prod apps/mobile/deploy
+        pnpm --config.node-linker=hoisted --filter mobile deploy --prod apps/mobile/deploy
     - name: Prepare mobile backend layer
       shell: bash
       run: |
