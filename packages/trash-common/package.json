@@ -2,17 +2,17 @@
   "name": "trash-common",
   "version": "4.0.0",
   "description": "Common Module of ThrowTrash Productions",
-  "main": "lib/index.mjs",
-  "types": "lib/index.d.mts",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
   "exports": {
-    "import": "./lib/index.mjs",
-    "require": "./lib/index.mjs",
-    "types": "./lib/index.d.mts"
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.mjs",
+    "types": "./dist/index.d.mts"
   },
   "type": "module",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "build": "tsc && cp -r src/client/template_text lib/client"
+    "build": "tsc && cp -r src/client/template_text dist/client"
   },
   "author": "",
   "license": "Apache-2.0",

@@ -126,12 +126,16 @@ describe("getDataBySigninId", () => {
 });
 
 describe("saveSession", () => {
+  const testRunSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const newSessionId = `session-new-${testRunSuffix}`;
+  const existingSessionId = `session-existing-${testRunSuffix}`;
+
   beforeAll(async () => {
     await documentClient.send(
       new PutCommand({
         TableName: property.SESSION_TABLE,
         Item: {
-          id: "session002",
+          id: existingSessionId,
           expire: 3600,
           userInfo: {
             signinId: "amazon001",
@@ -144,22 +148,23 @@ describe("saveSession", () => {
     );
   });
   it("セッションテーブルに存在しないデータ", async () => {
-    const session_data = { id: "session001", expire: 9999999 };
+    const session_data = { id: newSessionId, expire: 9999999 };
     const result = await db.saveSession(session_data);
     expect(result);
 
-    documentClient
+    await documentClient
       .send(
         new GetCommand({
           TableName: property.SESSION_TABLE,
           Key: {
-            id: "session001",
+            id: newSessionId,
           },
+          ConsistentRead: true,
         })
       )
       .then((data) => {
         expect(data.Item).not.toBeUndefined();
-        expect(data.Item!.id).toBe("session001");
+        expect(data.Item!.id).toBe(newSessionId);
         expect(data.Item!.expire).toBeDefined();
       });
   });
@@ -171,7 +176,7 @@ describe("saveSession", () => {
       id: "test002",
       name: "testUser",
     };
-    const session_data = { id: "session002", expire: 3600, userInfo: overwireUserInfo };
+    const session_data = { id: existingSessionId, expire: 3600, userInfo: overwireUserInfo };
     const result = await db.saveSession(session_data);
     expect(result);
     await documentClient
@@ -179,13 +184,14 @@ describe("saveSession", () => {
         new GetCommand({
           TableName: property.SESSION_TABLE,
           Key: {
-            id: "session002",
+            id: existingSessionId,
           },
+          ConsistentRead: true,
         })
       )
       .then((data) => {
         expect(data.Item).not.toBeUndefined();
-        expect(data.Item!.id).toBe("session002");
+        expect(data.Item!.id).toBe(existingSessionId);
         expect(data.Item!.userInfo).toMatchObject(overwireUserInfo);
         expect(data.Item!.expire).toBeDefined();
       });
@@ -197,12 +203,12 @@ describe("saveSession", () => {
           "throwtrash-backend-session": [
             {
               DeleteRequest: {
-                Key: { id: "session001" },
+                Key: { id: newSessionId },
               },
             },
             {
               DeleteRequest: {
-                Key: { id: "session002" },
+                Key: { id: existingSessionId },
               },
             },
           ],
