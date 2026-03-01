@@ -5,6 +5,6 @@
   "scripts": {
     "build": "pnpm --filter trash-common run build && pnpm --filter alarm-core run build && pnpm --filter alarm-function-create --filter alarm-function-update --filter alarm-function-delete --filter alarm-function-trigger --filter alarm-maintain-delete-failed-alarms run build",
     "test": "pnpm --filter alarm-core run test && pnpm --filter alarm-maintain-delete-failed-alarms run test",
-    "libs": "rm -rf ./build/nodejs && mkdir -p ./build/nodejs && rsync -aL --exclude '/alarm-workspace' --exclude '/.pnpm/node_modules/alarm-workspace' ../../node_modules/ ./build/nodejs/node_modules/ && rm -rf ./build/nodejs/node_modules/alarm-function-create ./build/nodejs/node_modules/alarm-function-update ./build/nodejs/node_modules/alarm-function-delete ./build/nodejs/node_modules/alarm-function-trigger ./build/nodejs/node_modules/alarm-maintain-delete-failed-alarms"
+    "libs": "rm -rf ./build/nodejs && mkdir -p ./build/nodejs && rsync -a --exclude '/alarm-workspace' --exclude '/.pnpm/node_modules/alarm-workspace' ../../node_modules/ ./build/nodejs/node_modules/ && rm -rf ./build/nodejs/node_modules/alarm-function-create ./build/nodejs/node_modules/alarm-function-update ./build/nodejs/node_modules/alarm-function-delete ./build/nodejs/node_modules/alarm-function-trigger ./build/nodejs/node_modules/alarm-maintain-delete-failed-alarms"
   }
 }
