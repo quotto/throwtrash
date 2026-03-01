@@ -41,7 +41,7 @@ jobs:
       - name: Configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/throwtrash-alarm-deploy-role
+          role-to-assume: ${{ vars.ALARM_AWS_ROLE_TO_ASSUME }}
           role-session-name: GitHubActions
           aws-region: ${{ vars.AWS_DEFAULT_REGION }}
 
@@ -76,9 +76,20 @@ jobs:
 
       - name: Prepare production layer dependencies
         run: |
-          rm -rf node_modules
-          pnpm install --prod --frozen-lockfile --filter alarm-function-create --filter alarm-function-update --filter alarm-function-delete --filter alarm-function-trigger --filter alarm-maintain-delete-failed-alarms --filter alarm-core --filter trash-common
           pnpm --dir apps/alarm run libs
+
+      - name: Validate layer package size
+        run: |
+          cd apps/alarm/build
+          rm -f layer-size-check.zip
+          zip -qr layer-size-check.zip nodejs
+          LAYER_ZIP_SIZE_BYTES=$(wc -c < layer-size-check.zip)
+          LAYER_ZIP_MAX_BYTES=65000000
+          echo "Layer zip size: ${LAYER_ZIP_SIZE_BYTES} bytes"
+          if [ "$LAYER_ZIP_SIZE_BYTES" -gt "$LAYER_ZIP_MAX_BYTES" ]; then
+            echo "::error::Layer zip size exceeds guard limit (${LAYER_ZIP_MAX_BYTES} bytes)"
+            exit 1
+          fi
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
