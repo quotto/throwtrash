@@ -2,7 +2,13 @@
 **/.env
 node_modules
 **/cdk.out
+# Terraformの作業ディレクトリ
+**/.terraform/
 # coverageレポート
 **/coverage
 # AIエージェント用のワークスペース
 work/
+# alarm workspace生成物
+apps/alarm/build/
+apps/alarm/**/dist/
+packages/alarm/**/dist/

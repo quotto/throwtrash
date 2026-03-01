@@ -12,6 +12,8 @@ on:
       - "cloudfront/**"
       - "packages/trash-common/**"
       - ".github/**"
+      - "!.github/workflows/alarm-deploy.yml"
+      - "!.github/workflows/alarm-plan.yml"
 permissions:
   id-token: write
   contents: read

@@ -1,0 +1,24 @@
+{
+  "name": "alarm-function-delete",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.136",
+    "@types/node": "^22.15.31",
+    "@types/source-map-support": "^0.5.10",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf ./dist; tsc"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.734.0",
+    "alarm-core": "workspace:*",
+    "source-map-support": "^0.5.21"
+  },
+  "type": "module"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "alarm-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "pnpm --filter trash-common run build && pnpm --filter alarm-core run build && pnpm --filter alarm-function-create --filter alarm-function-update --filter alarm-function-delete --filter alarm-function-trigger --filter alarm-maintain-delete-failed-alarms run build",
+    "test": "pnpm --filter alarm-core run test && pnpm --filter alarm-maintain-delete-failed-alarms run test",
+    "libs": "mkdir -p ./build/nodejs && cp -Lr ../../node_modules ./build/nodejs && rm -rf ./build/nodejs/node_modules/alarm-function-create ./build/nodejs/node_modules/alarm-function-update ./build/nodejs/node_modules/alarm-function-delete ./build/nodejs/node_modules/alarm-function-trigger ./build/nodejs/node_modules/alarm-maintain-delete-failed-alarms"
+  }
+}

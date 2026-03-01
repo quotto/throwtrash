@@ -1,6 +1,6 @@
 # throwtrash-monorepo
 
-throwtrash の Web/Backend と Alexa スキル、共通モジュールをまとめた pnpm 管理のモノレポです。
+throwtrash の Web/Backend と Alexa スキル、共通モジュール、アラーム機能をまとめた pnpm 管理のモノレポです。
 
 ## 構成
 - apps/frontend
@@ -12,10 +12,16 @@ throwtrash の Web/Backend と Alexa スキル、共通モジュールをまと�
 - apps/alexa
   - app: Alexa スキル本体
   - main.tf: Terraform 構成
+- apps/alarm
+  - ゴミ出しアラームのデプロイ対象モジュール (`packages/api/*`, `packages/trigger`, `packages/maintain/*`)
+  - Terraform 構成 (`infra/`)
+  - API ドキュメント (`docs/openapi/`)
 - cloudfront
   - CloudFront/CDK 構成
 - packages/trash-common
   - 共通モジュール（旧 throwtrash-common-module）
+- alarm-core
+  - alarm 用の共通パッケージ（非デプロイ）
 
 ## セットアップ
 ```bash
@@ -38,6 +44,9 @@ pnpm --filter alexa run build
 
 # 共通モジュール
 pnpm --filter trash-common run build
+
+# alarm
+pnpm --dir apps/alarm run build
 ```
 
 ## テスト
@@ -47,6 +56,9 @@ pnpm --filter backend run test
 pnpm --filter mobile run test
 pnpm --filter alexa run test
 pnpm --filter trash-common run test
+
+# alarm
+pnpm --dir apps/alarm run test
 ```
 
 ## デプロイ
@@ -57,7 +69,10 @@ GitHub Actions を利用します。各ワークフローは以下のパス変�
 - infra: `cloudfront/**`
 - alexa-skill: `apps/alexa/**`
 - common: `packages/trash-common/**`
+- alarm-plan: `apps/alarm/**`, `packages/alarm/**`, `packages/trash-common/**`, `.github/workflows/alarm-*.yml`
+- alarm-deploy: `apps/alarm/**`, `packages/alarm/**`, `packages/trash-common/**`, `.github/workflows/alarm-*.yml`
 
 ## API ドキュメント
 - Backend: `apps/backend/docs/backend-openapi.yaml`
 - API (モバイル/共有): `apps/mobile/docs/api-openapi.yaml`
+- Alarm: `apps/alarm/docs/openapi/alarm-api.yaml`

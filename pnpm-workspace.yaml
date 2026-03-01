@@ -2,6 +2,7 @@ packages:
   - 'apps/**'
   - 'cloudfront/**'
   - 'packages/*'
+  - 'packages/alarm/**'
   - '!apps/backend/dist/**'
   - '!apps/mobile/dist/**'
   - '!**/cdk.out/**'
