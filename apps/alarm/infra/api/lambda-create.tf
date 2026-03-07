@@ -6,7 +6,7 @@ data "archive_file" "create-function-zip" {
 data "archive_file" "create-layer-zip" {
   type        = "zip"
   source_dir  = "${path.root}/../packages/api/create/layer"
-  output_path = "${path.module}/layer.zip"
+  output_path = "${path.module}/app-create-layer.zip"
 }
 
 resource "aws_lambda_layer_version" "throwtrash-alarm-create-layer" {

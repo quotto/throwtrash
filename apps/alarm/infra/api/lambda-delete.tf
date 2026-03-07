@@ -6,7 +6,7 @@ data "archive_file" "delete-function-zip" {
 data "archive_file" "delete-layer-zip" {
   type        = "zip"
   source_dir  = "${path.root}/../packages/api/delete/layer"
-  output_path = "${path.module}/layer.zip"
+  output_path = "${path.module}/app-delete-layer.zip"
 }
 resource "aws_lambda_layer_version" "throwtrash-alarm-delete-layer" {
   layer_name          = "throwtrash-alarm-delete-libs"

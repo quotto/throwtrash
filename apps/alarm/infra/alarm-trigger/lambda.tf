@@ -7,7 +7,7 @@ data "archive_file" "trigger-function-zip" {
 data "archive_file" "trigger-layer-zip" {
   type        = "zip"
   source_dir  = "${path.root}/../packages/trigger/layer"
-  output_path = "${path.module}/layer.zip"
+  output_path = "${path.module}/alarm-trigger-layer.zip"
 }
 resource "aws_lambda_layer_version" "throwtrash-alarm-trigger-layer" {
   layer_name          = "throwtrash-alarm-trigger-libs"

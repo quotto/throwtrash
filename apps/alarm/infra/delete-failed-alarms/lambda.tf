@@ -10,7 +10,7 @@ data "archive_file" "delete-failed-alarms-function-zip" {
 data "archive_file" "delete-failed-alarms-layer-zip" {
   type        = "zip"
   source_dir  = "${path.root}/../packages/maintain/delete-failed-alarms/layer"
-  output_path = "${path.module}/layer.zip"
+  output_path = "${path.module}/delete-failed-alarms-layer.zip"
 }
 resource "aws_lambda_layer_version" "throwtrash-alarm-delete-failed-alarms-layer" {
   layer_name          = "throwtrash-alarm-delete-failed-alarms-libs"

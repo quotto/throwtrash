@@ -6,7 +6,7 @@ data "archive_file" "update-function-zip" {
 data "archive_file" "update-layer-zip" {
   type        = "zip"
   source_dir  = "${path.root}/../packages/api/update/layer"
-  output_path = "${path.module}/layer.zip"
+  output_path = "${path.module}/app-update-layer.zip"
 }
 resource "aws_lambda_layer_version" "throwtrash-alarm-update-layer" {
   layer_name          = "throwtrash-alarm-update-libs"
