@@ -1,5 +1,5 @@
 {
-  "name": "alarm-maintain-delete-failed-alarms",
+  "name": "alarm-function-maintain-delete-failed-alarms",
   "version": "1.0.0",
   "main": "index.mjs",
   "scripts": {
