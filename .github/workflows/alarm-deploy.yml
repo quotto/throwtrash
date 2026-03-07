@@ -77,7 +77,7 @@ jobs:
           pnpm --filter alarm-function-delete deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/delete/layer/nodejs
           pnpm --filter alarm-function-update deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/update/layer/nodejs
           pnpm --filter alarm-function-trigger deploy --config.node-linker=hoisted --prod apps/alarm/packages/trigger/layer/nodejs
-          pnpm --filter alarm-function-delete-failed-alarms deploy --config.node-linker=hoisted --prod apps/alarm/packages/delete-failed-alarms/layer/nodejs
+          pnpm --filter alarm-function-delete-failed-alarms deploy --config.node-linker=hoisted --prod apps/alarm/packages/maintain/delete-failed-alarms/layer/nodejs
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
