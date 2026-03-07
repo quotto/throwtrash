@@ -26,14 +26,9 @@ variable "api_gateway_custom_domain" {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-# module "layer" {
-#   source = "./shared"
-# }
-
 module "api" {
   source                   = "./api"
   alarm_trigger_lambda_arn = module.alarm-trigger.alarm_trigger_lambda_arn
-  layer_arn                = module.layer.layer_arn
   environment              = var.environment
 }
 
@@ -43,7 +38,6 @@ module "alarm-trigger" {
   alarm_table_name                 = module.api.alarm_table_name
   trash_schedule_table_name        = var.trash_schedule_table_name
   shared_trash_schedule_table_name = var.shared_trash_schedule_table_name
-  layer_arn                        = module.layer.layer_arn
   environment                      = var.environment
   delete-failed-alarms-sqs-url     = module.delete-failed-alarms.sqs_url
   delete-failed-alarms-sqs-arn     = module.delete-failed-alarms.sqs_arn
@@ -53,7 +47,6 @@ module "delete-failed-alarms" {
   source           = "./delete-failed-alarms"
   alarm_table_arn  = module.api.alarm_table_arn
   alarm_table_name = module.api.alarm_table_name
-  layer_arn        = module.layer.layer_arn
   environment      = var.environment
 }
 
