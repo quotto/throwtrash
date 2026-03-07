@@ -78,12 +78,6 @@ jobs:
           pnpm --filter alarm-function-update deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/update/layer/nodejs
           pnpm --filter alarm-function-trigger deploy --config.node-linker=hoisted --prod apps/alarm/packages/trigger/layer/nodejs
           pnpm --filter alarm-function-delete-failed-alarms deploy --config.node-linker=hoisted --prod apps/alarm/packages/delete-failed-alarms/layer/nodejs
-      - name: Build trigger after credentials restore
-        run: pnpm --filter alarm-function-trigger run build
-
-      - name: Prepare production layer dependencies
-        run: |
-          pnpm --dir apps/alarm run libs
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
