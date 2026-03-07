@@ -3,7 +3,7 @@ data "archive_file" "delete-function-zip" {
   source_dir  = "${path.root}/../packages/api/delete/dist"
   output_path = "${path.module}/app-delete.zip"
 }
-data "archive_file" "layer_zip" {
+data "archive_file" "delete-layer-zip" {
   type        = "zip"
   source_dir  = "${path.root}/../packages/api/delete/layer"
   output_path = "${path.module}/layer.zip"
@@ -12,8 +12,8 @@ resource "aws_lambda_layer_version" "throwtrash-alarm-delete-layer" {
   layer_name          = "throwtrash-alarm-delete-libs"
   skip_destroy        = true
   compatible_runtimes = ["nodejs20.x"]
-  filename            = data.archive_file.layer_zip.output_path
-  source_code_hash    = data.archive_file.layer_zip.output_base64sha256
+  filename            = data.archive_file.delete-layer-zip.output_path
+  source_code_hash    = data.archive_file.delete-layer-zip.output_base64sha256
 }
 
 resource "aws_lambda_function" "throwtrash-alarm-delete-lambda" {

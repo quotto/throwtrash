@@ -3,7 +3,7 @@ data "archive_file" "create-function-zip" {
   source_dir  = "${path.root}/../packages/api/create/dist"
   output_path = "${path.module}/app-create.zip"
 }
-data "archive_file" "layer_zip" {
+data "archive_file" "create-layer-zip" {
   type        = "zip"
   source_dir  = "${path.root}/../packages/api/create/layer"
   output_path = "${path.module}/layer.zip"
@@ -13,8 +13,8 @@ resource "aws_lambda_layer_version" "throwtrash-alarm-create-layer" {
   layer_name          = "throwtrash-alarm-create-libs"
   skip_destroy        = true
   compatible_runtimes = ["nodejs20.x"]
-  filename            = data.archive_file.layer_zip.output_path
-  source_code_hash    = data.archive_file.layer_zip.output_base64sha256
+  filename            = data.archive_file.create-layer-zip.output_path
+  source_code_hash    = data.archive_file.create-layer-zip.output_base64sha256
 }
 
 resource "aws_lambda_function" "throwtrash-alarm-create-lambda" {
