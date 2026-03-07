@@ -26,9 +26,9 @@ variable "api_gateway_custom_domain" {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-module "layer" {
-  source = "./shared"
-}
+# module "layer" {
+#   source = "./shared"
+# }
 
 module "api" {
   source                   = "./api"

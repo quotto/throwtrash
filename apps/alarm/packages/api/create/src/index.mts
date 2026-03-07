@@ -3,7 +3,7 @@ import { APIGatewayEvent,  APIGatewayProxyHandler, Context } from 'aws-lambda';
 import { registerAlarm } from 'alarm-core/usecase/alarm-service.mjs';
 import { DynamoDBAlarmRepository } from 'alarm-core/infra/dynamodb-alarm-repository.mjs';
 import { EventBridgeAlarmScheduler } from 'alarm-core/infra/eventbridge-alarm-scheduler.mjs';
-import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
+import type { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { ArgumentError } from 'alarm-core/entity/argument-error.mjs';
 import { AlarmTime } from 'alarm-core/entity/alarm-time.mjs';
 

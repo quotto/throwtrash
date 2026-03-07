@@ -3,6 +3,19 @@ data "archive_file" "trigger-function-zip" {
   source_dir  = "${path.root}/../packages/trigger/dist"
   output_path = "${path.module}/alarm-trigger.zip"
 }
+
+data "archive_file" "layer_zip" {
+  type        = "zip"
+  source_dir  = "${path.root}/../packages/api/trigger/layer"
+  output_path = "${path.module}/layer.zip"
+}
+resource "aws_lambda_layer_version" "throwtrash-alarm-trigger-layer" {
+  layer_name          = "throwtrash-alarm-trigger-libs"
+  skip_destroy        = true
+  compatible_runtimes = ["nodejs20.x"]
+  filename            = data.archive_file.layer_zip.output_path
+  source_code_hash    = data.archive_file.layer_zip.output_base64sha256
+}
 resource "aws_lambda_function" "throwtrash-alarm-trigger-lambda" {
   function_name = "throwtrash-alarm-trigger"
   role          = aws_iam_role.throwtrash-alarm-trigger-lambda-role.arn
@@ -13,7 +26,7 @@ resource "aws_lambda_function" "throwtrash-alarm-trigger-lambda" {
 
   runtime = "nodejs20.x"
 
-  layers = [var.layer_arn]
+  layers = [aws_lambda_layer_version.throwtrash-alarm-trigger-layer.arn]
 
   publish = var.environment == "prod"
 

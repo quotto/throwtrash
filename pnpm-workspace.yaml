@@ -7,3 +7,11 @@ packages:
   - '!apps/mobile/dist/**'
   - '!**/cdk.out/**'
   - '!**/node_modules/**'
+
+catalog:
+  '@aws-sdk/client-dynamodb': ^3.734.0
+  '@aws-sdk/client-scheduler': ^3.734.0
+  '@aws-sdk/client-sqs': ^3.734.0
+  '@aws-sdk/lib-dynamodb': ^3.734.0
+  'source-map-support': ^0.5.21
+  'aws-lambda': ^1.0.7

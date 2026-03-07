@@ -7,6 +7,19 @@ data "archive_file" "delete-function-zip" {
   output_path = "${path.module}/delete-failed-alarms.zip"
 }
 
+data "archive_file" "layer_zip" {
+  type        = "zip"
+  source_dir  = "${path.root}/../packages/maintain/delete-failed-alarms/layer"
+  output_path = "${path.module}/layer.zip"
+}
+resource "aws_lambda_layer_version" "throwtrash-alarm-delete-failed-alarms-layer" {
+  layer_name          = "throwtrash-alarm-delete-failed-alarms-libs"
+  skip_destroy        = true
+  compatible_runtimes = ["nodejs20.x"]
+  filename            = data.archive_file.layer_zip.output_path
+  source_code_hash    = data.archive_file.layer_zip.output_base64sha256
+}
+
 resource "aws_lambda_function" "throwtrash-alarm-delete-lambda" {
   function_name = local.function_name
   role          = aws_iam_role.throwtrash-alarm-delete-lambda-role.arn
@@ -17,7 +30,7 @@ resource "aws_lambda_function" "throwtrash-alarm-delete-lambda" {
 
   runtime = "nodejs20.x"
 
-  layers = [var.layer_arn]
+  layers = [aws_lambda_layer_version.throwtrash-alarm-delete-failed-alarms-layer.arn]
 
   publish = var.environment == "prod"
 

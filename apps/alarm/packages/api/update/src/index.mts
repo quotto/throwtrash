@@ -1,7 +1,7 @@
-import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
+import type { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { APIGatewayEvent, APIGatewayProxyHandler, Context } from 'aws-lambda';
 import 'source-map-support/register.js'
-import { SchedulerClientConfig } from '@aws-sdk/client-scheduler';
+import type { SchedulerClientConfig } from '@aws-sdk/client-scheduler';
 import { updateAlarm } from 'alarm-core/usecase/alarm-service.mjs';
 import { ArgumentError } from 'alarm-core/entity/argument-error.mjs';
 import { AlarmTime } from 'alarm-core/entity/alarm-time.mjs';

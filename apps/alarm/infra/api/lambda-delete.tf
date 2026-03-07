@@ -3,6 +3,18 @@ data "archive_file" "delete-function-zip" {
   source_dir  = "${path.root}/../packages/api/delete/dist"
   output_path = "${path.module}/app-delete.zip"
 }
+data "archive_file" "layer_zip" {
+  type        = "zip"
+  source_dir  = "${path.root}/../packages/api/delete/layer"
+  output_path = "${path.module}/layer.zip"
+}
+resource "aws_lambda_layer_version" "throwtrash-alarm-delete-layer" {
+  layer_name          = "throwtrash-alarm-delete-libs"
+  skip_destroy        = true
+  compatible_runtimes = ["nodejs20.x"]
+  filename            = data.archive_file.layer_zip.output_path
+  source_code_hash    = data.archive_file.layer_zip.output_base64sha256
+}
 
 resource "aws_lambda_function" "throwtrash-alarm-delete-lambda" {
   function_name = "throwtrash-alarm-delete"
@@ -14,7 +26,7 @@ resource "aws_lambda_function" "throwtrash-alarm-delete-lambda" {
 
   runtime = "nodejs20.x"
 
-  layers = [var.layer_arn]
+  layers = [aws_lambda_layer_version.throwtrash-alarm-delete-layer.arn]
 
   publish = var.environment == "prod"
 

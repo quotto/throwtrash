@@ -1,4 +1,4 @@
-import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
+import type { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { APIGatewayEvent, APIGatewayProxyHandler, Context } from 'aws-lambda';
 import 'source-map-support/register.js'
 import { deleteAlarm } from 'alarm-core/usecase/alarm-service.mjs';

@@ -60,36 +60,30 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm --filter "alarm-*..." install --frozen-lockfile
 
       - name: Build alarm modules
-        run: pnpm --dir apps/alarm run build
+        run: pnpm --filter "alarm-*..." run build
 
       - name: Run tests
-        run: pnpm --dir apps/alarm run test
+        run: pnpm --filter "alarm-*..." run test
 
       - name: Restore firebase credentials
         run: echo -n ${{ secrets.ALARM_FIREBASE_CREDENTIALS }} | base64 -d > ./apps/alarm/packages/trigger/firebase-config.json
 
+      - name: Hoist layer dependencies
+        run: |
+          pnpm --filter alarm-function-create deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/create/layer/nodejs
+          pnpm --filter alarm-function-delete deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/delete/layer/nodejs
+          pnpm --filter alarm-function-update deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/update/layer/nodejs
+          pnpm --filter alarm-function-trigger deploy --config.node-linker=hoisted --prod apps/alarm/packages/trigger/layer/nodejs
+          pnpm --filter alarm-function-delete-failed-alarms deploy --config.node-linker=hoisted --prod apps/alarm/packages/delete-failed-alarms/layer/nodejs
       - name: Build trigger after credentials restore
         run: pnpm --filter alarm-function-trigger run build
 
       - name: Prepare production layer dependencies
         run: |
           pnpm --dir apps/alarm run libs
-
-      - name: Validate layer package size
-        run: |
-          cd apps/alarm/build
-          rm -f layer-size-check.zip
-          zip -qr layer-size-check.zip nodejs
-          LAYER_ZIP_SIZE_BYTES=$(wc -c < layer-size-check.zip)
-          LAYER_ZIP_MAX_BYTES=65000000
-          echo "Layer zip size: ${LAYER_ZIP_SIZE_BYTES} bytes"
-          if [ "$LAYER_ZIP_SIZE_BYTES" -gt "$LAYER_ZIP_MAX_BYTES" ]; then
-            echo "::error::Layer zip size exceeds guard limit (${LAYER_ZIP_MAX_BYTES} bytes)"
-            exit 1
-          fi
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

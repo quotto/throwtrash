@@ -16,9 +16,9 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.734.0",
-    "alarm-core": "workspace:*",
-    "source-map-support": "^0.5.21"
+    "@aws-sdk/client-dynamodb": "catalog:",
+    "source-map-support": "catalog:",
+    "alarm-core": "workspace:*"
   },
   "type": "module"
 }

@@ -2,6 +2,7 @@
 **/.env
 node_modules
 **/cdk.out
+**/*.tsbuildinfo
 # Terraformの作業ディレクトリ
 **/.terraform/
 # coverageレポート
