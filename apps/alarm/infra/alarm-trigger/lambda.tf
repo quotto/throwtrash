@@ -1,0 +1,76 @@
+data "archive_file" "trigger-function-zip" {
+  type        = "zip"
+  source_dir  = "${path.root}/../packages/trigger/dist"
+  output_path = "${path.module}/alarm-trigger.zip"
+}
+
+data "archive_file" "trigger-layer-zip" {
+  type        = "zip"
+  source_dir  = "${path.root}/../packages/trigger/layer"
+  output_path = "${path.module}/alarm-trigger-layer.zip"
+}
+resource "aws_lambda_layer_version" "throwtrash-alarm-trigger-layer" {
+  layer_name          = "throwtrash-alarm-trigger-libs"
+  skip_destroy        = true
+  compatible_runtimes = ["nodejs20.x"]
+  filename            = data.archive_file.trigger-layer-zip.output_path
+  source_code_hash    = data.archive_file.trigger-layer-zip.output_base64sha256
+}
+resource "aws_lambda_function" "throwtrash-alarm-trigger-lambda" {
+  function_name = "throwtrash-alarm-trigger"
+  role          = aws_iam_role.throwtrash-alarm-trigger-lambda-role.arn
+  handler       = "index.handler"
+
+  filename         = data.archive_file.trigger-function-zip.output_path
+  source_code_hash = data.archive_file.trigger-function-zip.output_base64sha256
+
+  runtime = "nodejs20.x"
+
+  layers = [aws_lambda_layer_version.throwtrash-alarm-trigger-layer.arn]
+
+  publish = var.environment == "prod"
+
+  timeout = 300
+
+  environment {
+    variables = {
+      ALARM_TABLE_NAME                 = var.alarm_table_name
+      ALARM_TIME_INDEX_NAME            = "alarm_time_index_v2"
+      TRASH_SCHEDULE_TABLE_NAME        = var.trash_schedule_table_name
+      SHARED_TRASH_SCHEDULE_TABLE_NAME = var.shared_trash_schedule_table_name
+      GOOGLE_APPLICATION_CREDENTIALS   = "/var/task/firebase-config.json"
+      ALARM_DELETE_QUEUE_URL           = var.delete-failed-alarms-sqs-url
+    }
+
+  }
+
+  logging_config {
+    log_format            = "JSON"
+    log_group             = aws_cloudwatch_log_group.throwtrash-alarm-trigger-log-group.name
+    application_log_level = var.environment == "prod" ? "INFO" : "DEBUG"
+  }
+  tags = local.tags
+}
+
+resource "aws_lambda_function_event_invoke_config" "throwtrash-alarm-trigger-lambda-event-invoke-config" {
+  function_name                = aws_lambda_function.throwtrash-alarm-trigger-lambda.function_name
+  maximum_event_age_in_seconds = 60
+  maximum_retry_attempts       = 0
+}
+
+resource "aws_lambda_alias" "throwtrash-trigger-dev" {
+  name             = "dev"
+  function_name    = aws_lambda_function.throwtrash-alarm-trigger-lambda.function_name
+  function_version = "$LATEST"
+}
+
+resource "aws_lambda_alias" "throwtrash-trigger-prod" {
+  count            = var.environment == "prod" ? 1 : 0
+  name             = "prod"
+  function_name    = aws_lambda_function.throwtrash-alarm-trigger-lambda.function_name
+  function_version = aws_lambda_function.throwtrash-alarm-trigger-lambda.version
+}
+
+output "alarm_trigger_lambda_arn" {
+  value = aws_lambda_function.throwtrash-alarm-trigger-lambda.arn
+}
