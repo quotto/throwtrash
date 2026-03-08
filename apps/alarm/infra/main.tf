@@ -23,6 +23,10 @@ variable "api_gateway_custom_domain" {
   type = string
 }
 
+variable "api_gateway_origin_domain" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
@@ -61,4 +65,5 @@ module "api-gateway-prod-stage" {
   zone_id                   = var.zone_id
   certificate_arn           = var.certificate_arn
   api_gateway_custom_domain = var.api_gateway_custom_domain
+  api_gateway_origin_domain = var.api_gateway_origin_domain
 }
