@@ -88,8 +88,8 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./apps/alarm/infra
-        run: terraform plan -var="trash_schedule_table_name=$(echo '${{ vars.ALARM_TRASH_SCHEDULE_TABLE_ARN }}' | awk -F'/' '{print $NF}')" -var="environment=${{ env.name }}" -var="certificate_arn=${{ vars.ALRM_CERTIFICATE_ARN }}" -var="zone_id=${{ secrets.ZONE_ID }}" -var="api_gateway_custom_domain=${{ vars.CF_ALARM_API_DOMAIN }}" -var="shared_trash_schedule_table_name=throwtrash-shared-schedule"
+        run: terraform plan -var="trash_schedule_table_name=$(echo '${{ vars.ALARM_TRASH_SCHEDULE_TABLE_ARN }}' | awk -F'/' '{print $NF}')" -var="environment=${{ env.name }}" -var="certificate_arn=${{ vars.ALARM_CERTIFICATE_ARN }}" -var="zone_id=${{ secrets.ZONE_ID }}" -var="api_gateway_custom_domain=${{ vars.CF_ALARM_API_DOMAIN }}" -var="shared_trash_schedule_table_name=throwtrash-shared-schedule"
 
       - name: Terraform Apply
         working-directory: ./apps/alarm/infra
-        run: terraform apply -auto-approve -var="trash_schedule_table_name=$(echo '${{ vars.ALARM_TRASH_SCHEDULE_TABLE_ARN }}' | awk -F'/' '{print $NF}')" -var="environment=${{ env.name }}" -var="certificate_arn=${{ vars.ALRM_CERTIFICATE_ARN }}" -var="zone_id=${{ secrets.ZONE_ID }}" -var="api_gateway_custom_domain=${{ vars.CF_ALARM_API_DOMAIN }}" -var="shared_trash_schedule_table_name=throwtrash-shared-schedule"
+        run: terraform apply -auto-approve -var="trash_schedule_table_name=$(echo '${{ vars.ALARM_TRASH_SCHEDULE_TABLE_ARN }}' | awk -F'/' '{print $NF}')" -var="environment=${{ env.name }}" -var="certificate_arn=${{ vars.ALARM_CERTIFICATE_ARN }}" -var="zone_id=${{ secrets.ZONE_ID }}" -var="api_gateway_custom_domain=${{ vars.CF_ALARM_API_DOMAIN }}" -var="shared_trash_schedule_table_name=throwtrash-shared-schedule"
