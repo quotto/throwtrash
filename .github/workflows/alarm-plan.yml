@@ -60,24 +60,25 @@ jobs:
         with:
           node-version: '22.x'
           cache: 'pnpm'
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Restore firebase credentials
-        run: echo -n ${{ secrets.ALARM_FIREBASE_CREDENTIALS }} | base64 -d > ./apps/alarm/packages/trigger/firebase-config.json
+        run: pnpm --filter "alarm-*..." install --frozen-lockfile
 
       - name: Build alarm modules
-        run: pnpm --dir apps/alarm run build
+        run: pnpm --filter "alarm-*..." run build
 
-      - name: Build trigger after credentials restore
-        run: pnpm --filter alarm-function-trigger run build
+      - name: Run tests
+        run: pnpm --filter "alarm-*..." run test
 
-      - name: Prepare production layer dependencies
+      - name: Restore firebase credentials
+        run: echo -n ${{ secrets.ALARM_FIREBASE_CREDENTIALS }} | base64 -d > ./apps/alarm/packages/trigger/dist/firebase-config.json
+
+      - name: Hoist layer dependencies
         run: |
-          rm -rf node_modules
-          pnpm install --prod --frozen-lockfile --filter alarm-function-create --filter alarm-function-update --filter alarm-function-delete --filter alarm-function-trigger --filter alarm-maintain-delete-failed-alarms --filter alarm-core --filter trash-common
-          pnpm --dir apps/alarm run libs
+          pnpm --filter alarm-function-create deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/create/layer/nodejs
+          pnpm --filter alarm-function-delete deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/delete/layer/nodejs
+          pnpm --filter alarm-function-update deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/update/layer/nodejs
+          pnpm --filter alarm-function-trigger deploy --config.node-linker=hoisted --prod apps/alarm/packages/trigger/layer/nodejs
+          pnpm --filter alarm-function-delete-failed-alarms deploy --config.node-linker=hoisted --prod apps/alarm/packages/maintain/delete-failed-alarms/layer/nodejs
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
