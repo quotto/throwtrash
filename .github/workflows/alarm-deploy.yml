@@ -69,7 +69,7 @@ jobs:
         run: pnpm --filter "alarm-*..." run test
 
       - name: Restore firebase credentials
-        run: echo -n ${{ secrets.ALARM_FIREBASE_CREDENTIALS }} | base64 -d > ./apps/alarm/packages/trigger/firebase-config.json
+        run: echo -n ${{ secrets.ALARM_FIREBASE_CREDENTIALS }} | base64 -d > ./apps/alarm/packages/trigger/dist/firebase-config.json
 
       - name: Hoist layer dependencies
         run: |
