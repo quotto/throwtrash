@@ -1,5 +1,5 @@
 resource "aws_api_gateway_domain_name" "api-domain-name" {
-  domain_name              = "alarm.mythrowaway.net"
+  domain_name              = var.api_gateway_custom_domain
   regional_certificate_arn = var.certificate_arn
 
   endpoint_configuration {
@@ -14,7 +14,7 @@ resource "aws_route53_record" "route53-record" {
 
   alias {
     evaluate_target_health = true
-    name                   = var.api_gateway_custom_domain
+    name                   = var.api_gateway_origin_domain
     zone_id                = var.api_gateway_zone_id
   }
 }
