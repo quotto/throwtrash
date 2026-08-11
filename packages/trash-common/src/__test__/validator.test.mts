@@ -134,15 +134,28 @@ describe("input check",()=>{
             ];
             expect(checkTrashes(data)).toBeFalsy();
         })
-        it("invalid other trash_val", ()=>{
+        it("valid other trash_val up to 20 characters", ()=>{
             const data = [
                 {type: "burn",schedules:[{
                     type: "month",value: "3"
                 }]},
-                {type: "other", trash_val:"あいうえおかきくけこさ",schedules:[{
+                {type: "other", trash_val:"あいうえおかきくけこさしすせそたちつてと",schedules:[{
                     type: "weekday",value: "0"
                 }]}
             ];
+            expect(data[1]!.trash_val!.length).toBe(20);
+            expect(checkTrashes(data)).toBeTruthy();
+        });
+        it("invalid other trash_val over 20 characters", ()=>{
+            const data = [
+                {type: "burn",schedules:[{
+                    type: "month",value: "3"
+                }]},
+                {type: "other", trash_val:"あいうえおかきくけこさしすせそたちつてとあ",schedules:[{
+                    type: "weekday",value: "0"
+                }]}
+            ];
+            expect(data[1]!.trash_val!.length).toBe(21);
             expect(checkTrashes(data)).toBeFalsy();
             data[1].trash_val = "";
             expect(checkTrashes(data)).toBeFalsy();
