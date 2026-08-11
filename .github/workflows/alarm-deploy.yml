@@ -1,0 +1,95 @@
+name: alarm-deploy
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - "apps/alarm/**"
+      - "packages/alarm/**"
+      - "packages/trash-common/**"
+      - ".github/workflows/alarm-deploy.yml"
+      - ".github/workflows/alarm-plan.yml"
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  set-stage:
+    runs-on: ubuntu-latest
+    outputs:
+      STAGE: ${{ steps.set-stage.outputs.STAGE }}
+    steps:
+      - name: Set stage
+        id: set-stage
+        run: |
+          if [ ${{ github.event_name }} == "pull_request" -o ${{ github.ref }} == "refs/heads/release" ]; then
+            echo "STAGE=prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "STAGE=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: [set-stage]
+    environment: ${{ needs.set-stage.outputs.STAGE }}
+    env:
+      name: ${{ needs.set-stage.outputs.STAGE }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.ALARM_AWS_ROLE_TO_ASSUME }}
+          role-session-name: GitHubActions
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm --filter "alarm-*..." install --frozen-lockfile
+
+      - name: Build alarm modules
+        run: pnpm --filter "alarm-*..." run build
+
+      - name: Run tests
+        run: pnpm --filter "alarm-*..." run test
+
+      - name: Restore firebase credentials
+        run: echo -n ${{ secrets.ALARM_FIREBASE_CREDENTIALS }} | base64 -d > ./apps/alarm/packages/trigger/dist/firebase-config.json
+
+      - name: Hoist layer dependencies
+        run: |
+          pnpm --filter alarm-function-create deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/create/layer/nodejs
+          pnpm --filter alarm-function-delete deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/delete/layer/nodejs
+          pnpm --filter alarm-function-update deploy --config.node-linker=hoisted --prod apps/alarm/packages/api/update/layer/nodejs
+          pnpm --filter alarm-function-trigger deploy --config.node-linker=hoisted --prod apps/alarm/packages/trigger/layer/nodejs
+          pnpm --filter alarm-function-delete-failed-alarms deploy --config.node-linker=hoisted --prod apps/alarm/packages/maintain/delete-failed-alarms/layer/nodejs
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: ./apps/alarm/infra
+        run: terraform init -backend-config="bucket=throwtrash-tfstate-${{ env.name }}"
+
+      - name: Terraform Plan
+        working-directory: ./apps/alarm/infra
+        run: terraform plan -var="trash_schedule_table_name=$(echo '${{ vars.ALARM_TRASH_SCHEDULE_TABLE_ARN }}' | awk -F'/' '{print $NF}')" -var="environment=${{ env.name }}" -var="certificate_arn=${{ vars.ALARM_CERTIFICATE_ARN }}" -var="zone_id=${{ secrets.ZONE_ID }}" -var="api_gateway_custom_domain=${{ vars.CF_ALARM_API_DOMAIN }}" -var="api_gateway_origin_domain=${{ vars.ALARM_API_ORIGIN_DOMAIN }}" -var="shared_trash_schedule_table_name=throwtrash-shared-schedule"
+
+      - name: Terraform Apply
+        working-directory: ./apps/alarm/infra
+        run: terraform apply -auto-approve -var="trash_schedule_table_name=$(echo '${{ vars.ALARM_TRASH_SCHEDULE_TABLE_ARN }}' | awk -F'/' '{print $NF}')" -var="environment=${{ env.name }}" -var="certificate_arn=${{ vars.ALARM_CERTIFICATE_ARN }}" -var="zone_id=${{ secrets.ZONE_ID }}" -var="api_gateway_custom_domain=${{ vars.CF_ALARM_API_DOMAIN }}" -var="api_gateway_origin_domain=${{ vars.ALARM_API_ORIGIN_DOMAIN }}" -var="shared_trash_schedule_table_name=throwtrash-shared-schedule"

@@ -14,7 +14,8 @@ on:
     paths:
       - "apps/alexa/**"
       - "packages/trash-common/**"
-      - ".github/**"
+      - ".github/workflows/alexa-deploy.yml"
+      - ".github/workflows/alexa-release.yml"
 permissions:
   id-token: write
   contents: read
