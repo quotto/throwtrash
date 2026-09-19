@@ -11,7 +11,7 @@ process.env.APP_REGION = "us-west-2"
 process.env.APP_ID = "amzn1.ask.skill.test"
 
 import {VirtualAlexa} from "virtual-alexa";
-import {handler} from "../index.mjs"; //テスト実行ディレクトリを起点とした相対パス
+import {getSystemTimeZoneSafely, handler} from "../index.mjs"; //テスト実行ディレクトリを起点とした相対パス
 import assert from "assert";
 
 const model_file_path = "./src/__tests__/model.json";
@@ -159,6 +159,44 @@ describe("Launch",()=>{
                             .set("context.System.application.applicationId", process.env.APP_ID)
         const response = await request.send();
         expect(response.prompt()).toBe(`<speak>今日出せるゴミは、カン、です。</speak>`);
+    });
+});
+
+describe("getSystemTimeZoneSafely", ()=>{
+    afterEach(()=>{
+        jest.restoreAllMocks();
+    });
+
+    it("UPSからタイムゾーンを取得できる", async ()=>{
+        const upsServiceClient = {
+            getSystemTimeZone: jest.fn().mockResolvedValue("America/Los_Angeles")
+        };
+
+        await expect(getSystemTimeZoneSafely("device-id", upsServiceClient as any)).resolves.toBe("America/Los_Angeles");
+        expect(upsServiceClient.getSystemTimeZone).toHaveBeenCalledWith("device-id");
+    });
+
+    it("UPS取得に失敗した場合は東京タイムゾーンへフォールバックする", async ()=>{
+        const warnSpy = jest.spyOn(logger, "warn");
+        const upsServiceClient = {
+            getSystemTimeZone: jest.fn().mockRejectedValue(new Error("socket hang up"))
+        };
+
+        await expect(getSystemTimeZoneSafely("device-id", upsServiceClient as any)).resolves.toBe("Asia/Tokyo");
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("UPSからタイムゾーンを取得できなかったため Asia/Tokyo にフォールバックします"));
+    });
+
+    it("deviceIdが無い場合はUPSを呼ばずに東京タイムゾーンを返す", async ()=>{
+        const upsServiceClient = {
+            getSystemTimeZone: jest.fn()
+        };
+
+        await expect(getSystemTimeZoneSafely("", upsServiceClient as any)).resolves.toBe("Asia/Tokyo");
+        expect(upsServiceClient.getSystemTimeZone).not.toHaveBeenCalled();
+    });
+
+    it("UPSクライアントが無い場合は東京タイムゾーンを返す", async ()=>{
+        await expect(getSystemTimeZoneSafely("device-id", null)).resolves.toBe("Asia/Tokyo");
     });
 });
 

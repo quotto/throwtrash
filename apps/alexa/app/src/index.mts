@@ -31,6 +31,23 @@ interface ClientInfo {
     timezone: string
 }
 const CINFO: ClientInfo = {locale: "", timezone: ""};
+const DEFAULT_TIMEZONE = "Asia/Tokyo";
+
+export const getSystemTimeZoneSafely = async (
+    deviceId: string,
+    upsServiceClient: services.ups.UpsServiceClient | null
+): Promise<string> => {
+    if (!deviceId || !upsServiceClient) {
+        return DEFAULT_TIMEZONE;
+    }
+    try {
+        return await upsServiceClient.getSystemTimeZone(deviceId);
+    } catch (err: any) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        logger.warn(`UPSからタイムゾーンを取得できなかったため ${DEFAULT_TIMEZONE} にフォールバックします: deviceId=${deviceId}, error=${errorMessage}`);
+        return DEFAULT_TIMEZONE;
+    }
+};
 
 const init = async (handlerInput: HandlerInput,option: any)=>{
     const { requestEnvelope, serviceClientFactory } = handlerInput;
@@ -49,18 +66,15 @@ const init = async (handlerInput: HandlerInput,option: any)=>{
             logger.error(err)
         }
         // タイムゾーン取得後にclientインスタンスを生成
-        return (deviceId && upsServiceClient ?
-            upsServiceClient.getSystemTimeZone(deviceId) : new Promise(resolve => { resolve("Asia/Tokyo") })
-        ).then((timezone: any)=>{
-            CINFO.timezone = timezone;
-            logger.debug("timezone:"+timezone);
-            tsService =  new TrashScheduleService(
-                timezone,
-                textCreator,
-                new DynamoDBAdapter(),
-                {url: process.env.MECAB_API_URL || "", api_key: process.env.MECAB_API_KEY || ""}
-            );
-        });
+        const timezone = await getSystemTimeZoneSafely(deviceId, upsServiceClient);
+        CINFO.timezone = timezone;
+        logger.debug("timezone:"+timezone);
+        tsService =  new TrashScheduleService(
+            timezone,
+            textCreator,
+            new DynamoDBAdapter(),
+            {url: process.env.MECAB_API_URL || "", api_key: process.env.MECAB_API_KEY || ""}
+        );
     }
 };
 
