@@ -61,7 +61,7 @@ export function checkTrashes(trashes: TrashData[], globalExcludes?: ExcludeDate[
                 return isValidMonthValue(schedule.value as string);
             }
             return true;
-        }) && existSchedule(trash.schedules) && isValidTrashType(trash, 10);
+        }) && existSchedule(trash.schedules) && isValidTrashType(trash, 20);
     });
 }
 
